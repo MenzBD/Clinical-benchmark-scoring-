@@ -1,0 +1,3404 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Perfect Practice Studio Prototype</title>
+    <style>
+      :root {
+        --bg: #f8f3ec;
+        --surface: #fffdf8;
+        --surface-2: #edf6f1;
+        --ink: #233034;
+        --muted: #6b7472;
+        --line: #e3d8cb;
+        --teal: #08736b;
+        --teal-2: #dff1eb;
+        --amber: #b56c1a;
+        --amber-2: #fff2dc;
+        --coral: #c85b4b;
+        --coral-2: #fde8e1;
+        --rose: #a13d52;
+        --rose-2: #f9e4e8;
+        --green: #28744d;
+        --blue: #284f7c;
+        --navy: #1f3a44;
+        --mint: #bfe5d9;
+        --shadow: 0 18px 42px rgba(75, 55, 38, 0.1);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top left, rgba(191, 229, 217, 0.45), transparent 28rem),
+          linear-gradient(180deg, #fffaf1 0%, var(--bg) 46%),
+          var(--bg);
+        color: var(--ink);
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      .topbar {
+        min-height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 0 24px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 253, 248, 0.9);
+        backdrop-filter: blur(12px);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .mark {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        background:
+          linear-gradient(135deg, var(--teal), #2a9d8f 52%, var(--coral));
+        color: #fff;
+        font-weight: 800;
+        letter-spacing: 0;
+        box-shadow: 0 10px 20px rgba(8, 115, 107, 0.22);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 17px;
+        line-height: 1.15;
+        letter-spacing: 0;
+      }
+
+      .subtitle {
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .button {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--ink);
+        border-radius: 8px;
+        min-height: 38px;
+        padding: 0 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: default;
+        white-space: nowrap;
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.72) inset;
+      }
+
+      .button.primary {
+        background: var(--navy);
+        border-color: var(--navy);
+        color: #fff;
+        font-weight: 700;
+      }
+
+      .button.ghost {
+        background: transparent;
+      }
+
+      .button.small {
+        min-height: 30px;
+        padding: 0 10px;
+        font-size: 12px;
+        text-decoration: none;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(290px, 330px) minmax(430px, 1fr);
+        gap: 18px;
+        padding: 18px;
+        min-height: 0;
+      }
+
+      .view[hidden] {
+        display: none !important;
+      }
+
+      .app.home-mode .workspace-action,
+      .app.home-mode .home-hidden {
+        display: none;
+      }
+
+      .home-view {
+        padding: 22px;
+        display: block;
+        align-items: start;
+      }
+
+      .home-stack {
+        display: grid;
+        gap: 18px;
+      }
+
+      .home-panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .home-hero {
+        min-height: 248px;
+        border: 1px solid #ead8c9;
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 84% 22%, rgba(200, 91, 75, 0.17), transparent 11rem),
+          radial-gradient(circle at 70% 88%, rgba(8, 115, 107, 0.18), transparent 14rem),
+          linear-gradient(135deg, #fff8ea 0%, #f9efe5 52%, #eaf7f0 100%);
+        box-shadow: var(--shadow);
+        padding: 28px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+        gap: 24px;
+        align-items: end;
+      }
+
+      .hero-kicker {
+        color: var(--teal);
+        font-size: 12px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .hero-title {
+        margin: 8px 0 0;
+        max-width: 720px;
+        font-size: clamp(30px, 4vw, 56px);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+
+      .hero-copy {
+        margin: 14px 0 0;
+        max-width: 650px;
+        color: #4f5d5c;
+        font-size: 15px;
+        line-height: 1.55;
+      }
+
+      .hero-actions {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .hero-card {
+        border: 1px solid rgba(8, 115, 107, 0.2);
+        background: rgba(255, 253, 248, 0.78);
+        border-radius: 8px;
+        padding: 16px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .learning-orbit {
+        aspect-ratio: 1.15;
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgba(8, 115, 107, 0.92), rgba(31, 58, 68, 0.95));
+        display: grid;
+        place-items: center;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .learning-orbit::before,
+      .learning-orbit::after {
+        content: "";
+        position: absolute;
+        border: 1px solid rgba(255, 255, 255, 0.32);
+        border-radius: 50%;
+        width: 76%;
+        height: 48%;
+        transform: rotate(-24deg);
+      }
+
+      .learning-orbit::after {
+        width: 50%;
+        height: 70%;
+        transform: rotate(34deg);
+      }
+
+      .orbit-core {
+        width: 58px;
+        height: 58px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        background: #fff8ea;
+        color: var(--navy);
+        font-size: 24px;
+        font-weight: 900;
+        z-index: 1;
+      }
+
+      .home-panel-body {
+        padding: 16px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .home-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .mode-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+      }
+
+      .mode-explainer {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f8faf9;
+        padding: 12px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .prompt-update-preview {
+        width: 100%;
+        display: grid;
+        gap: 10px;
+      }
+
+      .prompt-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        width: 100%;
+      }
+
+      .prompt-preview-box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfc;
+        padding: 10px;
+        min-width: 0;
+      }
+
+      .prompt-preview-title {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+
+      .prompt-preview-text {
+        margin: 0;
+        white-space: pre-wrap;
+        font-size: 11px;
+        line-height: 1.4;
+        max-height: 180px;
+        overflow: auto;
+      }
+
+      .run-prompt-preview {
+        padding: 14px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .run-prompt-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .run-prompt-preview-box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfc;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .run-prompt-preview-title {
+        padding: 9px 10px;
+        border-bottom: 1px solid var(--line);
+        color: var(--navy);
+        font-size: 11px;
+        font-weight: 850;
+        background: #fffaf2;
+      }
+
+      .run-prompt-preview-text {
+        margin: 0;
+        padding: 10px;
+        white-space: pre-wrap;
+        font-size: 11px;
+        line-height: 1.45;
+        max-height: 260px;
+        overflow: auto;
+      }
+
+      .prompt-preview-status {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .dashboard {
+        border-bottom: 1px solid var(--line);
+        background: #fbfcfc;
+      }
+
+      .dashboard-inner {
+        padding: 18px 18px 16px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .dashboard-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: end;
+      }
+
+      .dashboard-title {
+        margin: 0;
+        font-size: 16px;
+        letter-spacing: 0;
+      }
+
+      .dashboard-copy {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+        max-width: 780px;
+      }
+
+      .dashboard-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .benchmark-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .benchmark-tile {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 8px;
+        padding: 12px;
+        min-width: 0;
+      }
+
+      .benchmark-label {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 750;
+      }
+
+      .benchmark-value {
+        margin-top: 5px;
+        font-size: 18px;
+        font-weight: 850;
+      }
+
+      .case-library {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .case-card {
+        border: 1px solid var(--line);
+        background:
+          linear-gradient(180deg, #fffdf8 0%, #fffaf2 100%);
+        border-radius: 8px;
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+        min-height: 190px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .case-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 4px;
+        background: linear-gradient(90deg, var(--teal), var(--coral), var(--amber));
+      }
+
+      .case-card.active {
+        border-color: #9dd4c7;
+        box-shadow: inset 0 3px 0 var(--teal);
+      }
+
+      .case-card-title {
+        font-size: 15px;
+        font-weight: 850;
+      }
+
+      .case-card-meta,
+      .case-card-summary {
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.4;
+      }
+
+      .case-card-summary {
+        min-height: 64px;
+      }
+
+      .case-card-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--teal);
+        font-size: 11px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .case-card-kicker::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--coral);
+      }
+
+      .case-card .button {
+        justify-self: start;
+      }
+
+      .case-card-actions {
+        display: grid;
+        gap: 8px;
+      }
+
+      .case-card-actions .button {
+        width: 100%;
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        min-width: 0;
+      }
+
+      .panel-header {
+        padding: 16px 16px 12px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .panel-title {
+        margin: 0;
+        font-size: 15px;
+        letter-spacing: 0;
+      }
+
+      .panel-meta {
+        color: var(--muted);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .setup {
+        padding: 16px;
+        display: grid;
+        gap: 18px;
+        align-content: start;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      label,
+      .field-label {
+        color: #334044;
+        font-size: 12px;
+        font-weight: 750;
+        letter-spacing: 0;
+      }
+
+      .dropzone {
+        min-height: 128px;
+        border: 1px dashed #b9cfc8;
+        border-radius: 8px;
+        background:
+          linear-gradient(180deg, #fffdf8 0%, #f5fbf7 100%);
+        padding: 14px;
+        display: grid;
+        align-content: space-between;
+        gap: 14px;
+      }
+
+      .case-title {
+        font-weight: 750;
+        font-size: 14px;
+      }
+
+      .case-blurb {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .case-chips,
+      .mini-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .chip {
+        border-radius: 999px;
+        background: var(--teal-2);
+        color: #405051;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 8px;
+        white-space: nowrap;
+      }
+
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        background: var(--surface);
+      }
+
+      select {
+        height: 40px;
+        padding: 0 10px;
+      }
+
+      textarea {
+        min-height: 86px;
+        resize: vertical;
+        padding: 10px;
+        line-height: 1.45;
+      }
+
+      #target-prompt {
+        min-height: 150px;
+      }
+
+      .prompt-bank {
+        margin-top: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffaf2;
+        padding: 10px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .prompt-bank-top,
+      .prompt-bank-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .prompt-bank-status {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .prompt-bank-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .prompt-bank-actions .button.small {
+        min-height: 30px;
+        padding: 0 9px;
+        font-size: 11px;
+      }
+
+      .prompt-bank-actions .button.active {
+        background: var(--teal-2);
+        border-color: rgba(8, 115, 107, 0.32);
+        color: var(--teal);
+      }
+
+      .segmented {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(68px, 1fr));
+        padding: 3px;
+        background: #f2e9de;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        gap: 3px;
+      }
+
+      .control-note {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .segment {
+        min-width: 0;
+        min-height: 34px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: #536160;
+        font-size: 12px;
+        font-weight: 750;
+        cursor: default;
+      }
+
+      .segment.active {
+        background: var(--surface);
+        color: var(--navy);
+        box-shadow: 0 1px 6px rgba(18, 34, 36, 0.1);
+      }
+
+      .main {
+        display: grid;
+        grid-template-rows: minmax(420px, 1fr) auto;
+        gap: 18px;
+        min-height: 0;
+      }
+
+      .conversation {
+        min-height: 0;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      .tabs {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .tab {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        border-radius: 8px;
+        min-height: 32px;
+        padding: 0 10px;
+        font-size: 12px;
+        font-weight: 750;
+        cursor: default;
+      }
+
+      .tab.active {
+        background: var(--teal-2);
+        color: var(--teal);
+      }
+
+      .stream {
+        padding: 16px;
+        overflow: hidden;
+        display: grid;
+        gap: 12px;
+        align-content: start;
+      }
+
+      .status-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .stat {
+        background: #fffaf2;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        min-width: 0;
+      }
+
+      .stat-label {
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 4px;
+      }
+
+      .stat-value {
+        font-size: 13px;
+        font-weight: 800;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .message {
+        display: grid;
+        grid-template-columns: 88px 1fr;
+        gap: 12px;
+        align-items: start;
+      }
+
+      .speaker {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding-top: 10px;
+        letter-spacing: 0;
+      }
+
+      .bubble {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px 13px;
+        background: #fff;
+        line-height: 1.5;
+        font-size: 13px;
+      }
+
+      .message.student .bubble {
+        border-left: 4px solid var(--blue);
+        background: #f6f9fd;
+      }
+
+      .message.patient .bubble {
+        border-left: 4px solid var(--coral);
+        background: var(--amber-2);
+      }
+
+      .message.evaluator .bubble {
+        border-left: 4px solid var(--teal);
+        background: var(--teal-2);
+      }
+
+      .message.typing .bubble {
+        color: var(--muted);
+        background: #f8faf9;
+        border-left-style: dashed;
+      }
+
+      .typing-dots {
+        display: inline-flex;
+        gap: 3px;
+        margin-left: 4px;
+        vertical-align: middle;
+      }
+
+      .typing-dots span {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #879392;
+        display: block;
+        animation: pulse 1s infinite ease-in-out;
+      }
+
+      .typing-dots span:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+
+      .typing-dots span:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      @keyframes pulse {
+        0%,
+        80%,
+        100% {
+          opacity: 0.35;
+          transform: translateY(0);
+        }
+
+        40% {
+          opacity: 1;
+          transform: translateY(-2px);
+        }
+      }
+
+      .bubble strong {
+        font-weight: 800;
+      }
+
+      .final-details {
+        margin-top: 10px;
+        color: var(--muted);
+      }
+
+      .final-details summary {
+        color: var(--teal);
+        cursor: default;
+        font-weight: 800;
+      }
+
+      .final-details div {
+        margin-top: 8px;
+        color: var(--ink);
+      }
+
+      .report {
+        padding: 16px;
+      }
+
+      .report-heading {
+        margin: 0;
+        color: var(--ink);
+        font-size: 15px;
+        font-weight: 850;
+      }
+
+      .report-heading-row {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .overall-score {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .overall-score strong {
+        color: var(--teal);
+        font-size: 22px;
+        font-weight: 900;
+        margin-left: 6px;
+      }
+
+      .report-actions {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .report-actions .button {
+        min-height: 36px;
+      }
+
+      .targeted-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .targeted-actions[hidden] {
+        display: none;
+      }
+
+      .action-status {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+        min-width: 180px;
+      }
+
+      .report-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(160px, 1fr));
+        gap: 12px;
+      }
+
+      .metric {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: #fffdf8;
+        min-height: 126px;
+      }
+
+      .metric-name {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 750;
+      }
+
+      .metric-value {
+        margin-top: 8px;
+        font-size: 20px;
+        font-weight: 850;
+      }
+
+      .metric-note {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+        margin-top: 8px;
+      }
+
+      .prompt-guidance {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        gap: 18px;
+      }
+
+      .prompt-guidance-name {
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .prompt-guidance-note {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+        margin-top: 6px;
+      }
+
+      .batch-panel {
+        padding: 0;
+      }
+
+      .batch-body {
+        padding: 16px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .batch-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .batch-config {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) minmax(140px, 180px);
+        gap: 12px;
+        align-items: end;
+      }
+
+      .batch-levels {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .check-pill {
+        min-height: 34px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffaf2;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 10px;
+        color: #334044;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .check-pill input {
+        accent-color: var(--teal);
+      }
+
+      input[type="number"] {
+        height: 40px;
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        background: var(--surface);
+        padding: 0 10px;
+      }
+
+      .batch-chart {
+        min-height: 260px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffaf2;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+
+      .batch-chart svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .chart-empty {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .batch-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+
+      .batch-table th,
+      .batch-table td {
+        border-bottom: 1px solid var(--line);
+        padding: 8px 6px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .batch-table th {
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .batch-table td:last-child {
+        color: var(--muted);
+      }
+
+      .quality {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 5px 8px;
+        background: #f5efe6;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+      }
+
+      .dot.amber {
+        background: var(--amber);
+      }
+
+      .dot.rose {
+        background: var(--rose);
+      }
+
+      @media (max-width: 1080px) {
+        .layout {
+          grid-template-columns: 300px minmax(0, 1fr);
+        }
+
+        .home-view {
+          grid-template-columns: 1fr;
+        }
+
+        .case-library,
+        .benchmark-strip {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+      }
+
+      @media (max-width: 760px) {
+        .topbar {
+          min-height: 76px;
+          height: auto;
+          align-items: flex-start;
+          padding: 14px;
+          flex-direction: column;
+        }
+
+        .top-actions {
+          width: 100%;
+          justify-content: stretch;
+        }
+
+        .top-actions .button {
+          flex: 1;
+        }
+
+        .layout {
+          grid-template-columns: 1fr;
+          padding: 12px;
+        }
+
+        .home-view {
+          padding: 12px;
+        }
+
+        .main {
+          grid-template-rows: auto auto;
+        }
+
+        .status-strip,
+        .report-grid,
+        .prompt-guidance,
+        .benchmark-strip,
+        .case-library,
+        .home-summary,
+        .mode-grid,
+        .prompt-preview-grid,
+        .run-prompt-preview-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .dashboard-head {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .dashboard-actions {
+          justify-content: stretch;
+        }
+
+        .dashboard-actions .button {
+          flex: 1;
+        }
+
+        .message {
+          grid-template-columns: 1fr;
+          gap: 6px;
+        }
+
+        .speaker {
+          padding-top: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app home-mode" id="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="mark">PP</div>
+          <div>
+            <h1>Perfect Practice Studio</h1>
+            <div class="subtitle">Optimise AI for better learning conversations</div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button class="button home-hidden" id="home-button">Learning Library</button>
+          <button class="button ghost workspace-action">Save Draft</button>
+          <button class="button workspace-action">Export Report</button>
+          <button class="button workspace-action" id="restart-button">Restart Practice</button>
+          <button class="button primary workspace-action" id="run-button">Run Practice</button>
+        </div>
+      </header>
+
+      <main class="home-view view" id="home-view">
+        <section class="home-stack">
+          <article class="home-hero" aria-label="Learning optimisation overview">
+            <div>
+              <div class="hero-kicker">AI learning simulation studio</div>
+              <h2 class="hero-title">Perfect your learning</h2>
+              <p class="hero-copy">
+                Tune AI patients and clinicians against consistent learning scenarios, then see how prompt changes move performance over repeated runs.
+              </p>
+              <div class="hero-actions">
+                <span class="quality"><span class="dot"></span>Optimise patient AI</span>
+                <span class="quality"><span class="dot amber"></span>Optimise clinician AI</span>
+                <span class="quality"><span class="dot rose"></span>Compare rubric domains</span>
+              </div>
+            </div>
+            <div class="hero-card">
+              <div class="learning-orbit">
+                <div class="orbit-core">AI</div>
+              </div>
+              <div>
+                <div class="case-card-title">Optimise AI for your learning</div>
+                <div class="case-card-summary">
+                  Pick a scenario, tune one role, run the conversation, then improve the prompt from feedback.
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="home-panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Learning Case Library</h2>
+                <div class="panel-meta">Choose a scenario, then tune one AI role</div>
+              </div>
+              <div class="dashboard-actions">
+                <label class="button" for="case-upload">Upload Scenario</label>
+                <input id="case-upload" type="file" accept="application/json,.json" hidden />
+              </div>
+            </div>
+            <div class="home-panel-body">
+              <div class="case-library" id="case-library"></div>
+            </div>
+          </article>
+        </section>
+      </main>
+
+      <main class="layout view" id="workspace-view" hidden>
+        <aside class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title" id="setup-title">Tune Pharmacist AI</h2>
+            <span class="panel-meta">Scenario ready</span>
+          </div>
+          <section class="setup">
+            <div class="field">
+              <span class="field-label">Learning Scenario</span>
+              <div class="dropzone">
+                <div>
+                  <div class="case-title" id="case-title">Case 559 - Medication history and review: migraine with aura</div>
+                  <div class="case-blurb" id="case-blurb">
+                    A pharmacist takes a medication history and reviews medication-related safety issues for a patient
+                    with worsening migraine symptoms, frequent analgesic use, allergy history and contraception safety issues.
+                  </div>
+                </div>
+                <select id="case-select" aria-label="Select learning scenario">
+                  <option value="case-559">Case 559 - Medication history and review: migraine with aura</option>
+                  <option value="case-704">Case 704 - Pharmacist-doctor medication safety call</option>
+                  <option value="case-831">Case 831 - Nurse-pharmacist medication advice call</option>
+                </select>
+                <div class="case-chips" id="case-chips">
+                  <span class="chip">patient-pharmacist</span>
+                  <span class="chip">medication history and review</span>
+                  <span class="chip">safety</span>
+                  <span class="chip">contraception</span>
+                  <a class="button small" id="case-download" href="/api/case-file?caseId=case-559" download="case-559-migraine-with-aura.json">Download Scenario</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="target-prompt" id="target-prompt-label">Pharmacist Prompt</label>
+              <textarea id="target-prompt" placeholder="Enter your prompt here"></textarea>
+              <div class="prompt-bank" id="prompt-bank">
+                <div class="prompt-bank-top">
+                  <span class="field-label">Prompt Bank</span>
+                  <span class="prompt-bank-status" id="prompt-bank-status">Choose a seed or type your own.</span>
+                </div>
+                <div class="prompt-bank-row">
+                  <div class="prompt-bank-actions" id="prompt-bank-categories"></div>
+                  <div class="prompt-bank-actions">
+                    <button class="button small" type="button" id="prompt-bank-prev">Previous</button>
+                    <button class="button small" type="button" id="prompt-bank-random">Random</button>
+                    <button class="button small" type="button" id="prompt-bank-next">Next</button>
+                  </div>
+                </div>
+              </div>
+              <div class="control-note" id="target-role-note">
+                This is the only prompt being changed. The scenario and comparison AI stay consistent for this run.
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="field-label" id="target-summary-title">Learning Focus</span>
+              <div class="control-note" id="target-summary">
+                The pharmacist AI is being tuned. The patient AI and learning scenario stay consistent.
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="clinician-model">Primary-role AI Model</label>
+              <select id="clinician-model">
+                <option value="gpt-5.4-nano">GPT-5.4-nano - primary-role simulator</option>
+                <option value="gpt-5.4-mini">GPT-5.4-mini - primary-role simulator</option>
+                <option value="gpt-4o-mini">GPT-4o-mini - primary-role simulator</option>
+              </select>
+              <div class="control-note" id="clinician-model-note">
+                Runs the main professional side of the conversation. If this role is being tuned, this is the model being tested.
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="patient-model">Counterpart-role AI Model</label>
+              <select id="patient-model">
+                <option value="gpt-5.4-nano">GPT-5.4-nano - counterpart-role simulator</option>
+                <option value="gpt-5.4-mini">GPT-5.4-mini - counterpart-role simulator</option>
+                <option value="gpt-4o-mini">GPT-4o-mini - counterpart-role simulator</option>
+              </select>
+              <div class="control-note" id="patient-model-note">
+                Runs the counterpart side of the conversation. If this role is being tuned, this is the model being tested.
+              </div>
+            </div>
+          </section>
+        </aside>
+
+        <section class="main">
+          <article class="panel conversation">
+            <div class="panel-header">
+              <h2 class="panel-title">Practice Conversation</h2>
+              <div class="tabs">
+                <button class="tab active">Transcript</button>
+                <button class="tab">Reasoning Trace</button>
+                <button class="tab">Events</button>
+              </div>
+            </div>
+            <div class="stream" id="stream">
+              <div class="status-strip">
+                <div class="stat">
+                  <div class="stat-label">Run</div>
+                  <div class="stat-value" id="run-time">04:18 elapsed</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">Turns</div>
+                  <div class="stat-value" id="turns">11 / 30</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">Learning Clues</div>
+                  <div class="stat-value" id="info-uncovered">68%</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">Safety Signals</div>
+                  <div class="stat-value" id="risk-flags">3 found</div>
+                </div>
+              </div>
+
+              <div class="message student">
+                <div class="speaker">Pharmacist</div>
+                <div class="bubble">
+                  Can you tell me what happens before and during one of these headaches, and how often
+                  they have been happening recently?
+                </div>
+              </div>
+
+              <div class="message patient">
+                <div class="speaker">Patient</div>
+                <div class="bubble">
+                  I just get these awful one-sided headaches. Sometimes my vision goes weird first,
+                  like bright zig-zag lights. They have been happening a lot more lately, but I would
+                  need to check my diary to say exactly how many.
+                </div>
+              </div>
+
+              <div class="message student">
+                <div class="speaker">Pharmacist</div>
+                <div class="bubble">
+                  What do you take when this happens, how many days in the last month have you used it,
+                  and are you using any hormonal contraception or planning pregnancy?
+                </div>
+              </div>
+
+              <div class="message patient">
+                <div class="speaker">Patient</div>
+                <div class="bubble">
+                  I use a strong pain tablet when it is already bad, but I am not sure of the exact
+                  name without checking the packet. I am on the pill. Pregnancy is maybe something
+                  I would want in the next couple of years.
+                </div>
+              </div>
+
+              <div class="message evaluator">
+                <div class="speaker">Evaluator</div>
+                <div class="bubble">
+                  <strong>Live note:</strong> Safety-guided prompting surfaced two critical safety issues:
+                  medication-overuse risk and combined hormonal contraception in migraine with aura.
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel report">
+            <div class="report-heading-row">
+              <h3 class="report-heading">Assigned-task score and feedback</h3>
+              <div class="overall-score">Assigned-task fidelity <strong id="overall-prompt-score">-- / 100</strong></div>
+            </div>
+            <div class="report-grid">
+              <div class="metric" id="metric-0">
+                <div class="metric-name">Assigned Task Fidelity</div>
+                <div class="metric-value">--</div>
+                <div class="metric-note">Waiting for evaluator output.</div>
+              </div>
+              <div class="metric" id="metric-1">
+                <div class="metric-name">Conversational Realism</div>
+                <div class="metric-value">--</div>
+                <div class="metric-note">Waiting for evaluator output.</div>
+              </div>
+              <div class="metric" id="metric-2">
+                <div class="metric-name">Information Behaviour</div>
+                <div class="metric-value">--</div>
+                <div class="metric-note">Waiting for evaluator output.</div>
+              </div>
+              <div class="metric" id="metric-3">
+                <div class="metric-name">Case Fidelity</div>
+                <div class="metric-value">--</div>
+                <div class="metric-note">Waiting for evaluator output.</div>
+              </div>
+            </div>
+            <div class="prompt-guidance" aria-label="Qualitative prompt guidance">
+              <div>
+                <div class="prompt-guidance-name">Assigned Behaviour Contract</div>
+                <div class="prompt-guidance-note" id="assigned-contract-guidance">The evaluator will freeze the behaviour requested by Prompt A.</div>
+              </div>
+              <div>
+                <div class="prompt-guidance-name">Clinical Performance</div>
+                <div class="prompt-guidance-note" id="clinical-performance-guidance">Shown separately for healthcare-professional roles so it cannot cancel behavioural fidelity.</div>
+              </div>
+              <div>
+                <div class="prompt-guidance-name">Prompt Fidelity</div>
+                <div class="prompt-guidance-note" id="prompt-fidelity-guidance">Run a conversation to receive a qualitative fidelity pointer.</div>
+              </div>
+              <div>
+                <div class="prompt-guidance-name">Portability</div>
+                <div class="prompt-guidance-note" id="prompt-portability-guidance">Run a conversation to receive a qualitative portability pointer.</div>
+              </div>
+            </div>
+            <div class="report-actions">
+              <button class="button primary" id="update-prompt-button" disabled>Improve Pharmacist Prompt</button>
+              <div class="targeted-actions" id="targeted-actions" hidden>
+                <button class="button small" data-improvement-focus="prompt_fidelity" disabled>Improve Assigned Task</button>
+                <button class="button small" data-improvement-focus="role_realism" disabled>Improve Role Realism</button>
+                <button class="button small" data-improvement-focus="information_control" disabled>Improve Information Behaviour</button>
+                <button class="button small" data-improvement-focus="portability" disabled>Improve Portability</button>
+              </div>
+              <div class="action-status" id="prompt-update-status">Run a practice conversation first, then use the evaluator feedback to revise the pharmacist AI prompt.</div>
+              <div class="prompt-update-preview" id="prompt-update-preview" hidden>
+                <div class="control-note" id="prompt-update-rationale"></div>
+                <div class="prompt-preview-grid">
+                  <div class="prompt-preview-box">
+                    <div class="prompt-preview-title">Before</div>
+                    <pre class="prompt-preview-text" id="prompt-before"></pre>
+                  </div>
+                  <div class="prompt-preview-box">
+                    <div class="prompt-preview-title">After</div>
+                    <pre class="prompt-preview-text" id="prompt-after"></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel prompt-preview-panel" id="prompt-preview-panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Prompt Preview</h2>
+                <div class="panel-meta">Server-built messages for this run</div>
+              </div>
+              <button class="button small" id="refresh-prompt-preview-button">Refresh</button>
+            </div>
+            <div class="run-prompt-preview">
+              <div class="prompt-preview-status" id="prompt-preview-status">Open a scenario to preview the run messages.</div>
+              <div class="run-prompt-preview-grid">
+                <div class="run-prompt-preview-box">
+                  <div class="run-prompt-preview-title" id="preview-primary-title">Pharmacist</div>
+                  <pre class="run-prompt-preview-text" id="preview-clinician">No preview yet.</pre>
+                </div>
+                <div class="run-prompt-preview-box">
+                  <div class="run-prompt-preview-title" id="preview-counterpart-title">Patient</div>
+                  <pre class="run-prompt-preview-text" id="preview-patient">No preview yet.</pre>
+                </div>
+                <div class="run-prompt-preview-box">
+                  <div class="run-prompt-preview-title">Evaluator</div>
+                  <pre class="run-prompt-preview-text" id="preview-evaluator">No preview yet.</pre>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel batch-panel" id="batch-panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Batch Learning Optimisation</h2>
+                <div class="panel-meta">Configurable paired trials, temperature 1</div>
+              </div>
+            </div>
+            <div class="batch-body">
+              <div class="batch-config">
+                <div class="field">
+                  <span class="field-label">Starting Prompt Levels</span>
+                  <div class="batch-levels" aria-label="Batch starting prompt levels">
+                    <label class="check-pill">
+                      <input type="checkbox" name="batch-level" value="low" checked />
+                      Low
+                    </label>
+                    <label class="check-pill">
+                      <input type="checkbox" name="batch-level" value="medium" />
+                      Medium
+                    </label>
+                    <label class="check-pill">
+                      <input type="checkbox" name="batch-level" value="high" />
+                      High
+                    </label>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="batch-repetitions">Repetitions per Level</label>
+                  <input id="batch-repetitions" type="number" min="1" max="25" value="10" />
+                </div>
+              </div>
+              <div class="batch-controls">
+                <button class="button primary" id="batch-clinician-button">Run 10 Optimisations</button>
+                <button class="button" id="batch-cancel-button" disabled>Cancel Batch</button>
+                <button class="button" id="batch-download-button" disabled>Download Results</button>
+                <div class="action-status" id="batch-status">Runs selected prompts, improves each from feedback, then retests the improved prompt.</div>
+              </div>
+              <div class="batch-chart" id="batch-chart">
+                <div class="chart-empty">Batch results will plot here.</div>
+              </div>
+              <table class="batch-table" aria-label="Batch clinician optimisation results">
+                <thead>
+                  <tr>
+                    <th>Trial</th>
+                    <th>Level</th>
+                    <th>Rep</th>
+                    <th>Before</th>
+                    <th>After</th>
+                    <th>Delta</th>
+                    <th>Improvement rationale</th>
+                  </tr>
+                </thead>
+                <tbody id="batch-table-body"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+      </main>
+    </div>
+    <script>
+      const stream = document.querySelector("#stream");
+      const app = document.querySelector("#app");
+      const homeView = document.querySelector("#home-view");
+      const workspaceView = document.querySelector("#workspace-view");
+      const homeButton = document.querySelector("#home-button");
+      const runButton = document.querySelector("#run-button");
+      const restartButton = document.querySelector("#restart-button");
+      const updatePromptButton = document.querySelector("#update-prompt-button");
+      const targetedActions = document.querySelector("#targeted-actions");
+      const targetedActionButtons = Array.from(document.querySelectorAll("[data-improvement-focus]"));
+      const overallPromptScore = document.querySelector("#overall-prompt-score");
+      const assignedContractGuidance = document.querySelector("#assigned-contract-guidance");
+      const clinicalPerformanceGuidance = document.querySelector("#clinical-performance-guidance");
+      const promptFidelityGuidance = document.querySelector("#prompt-fidelity-guidance");
+      const promptPortabilityGuidance = document.querySelector("#prompt-portability-guidance");
+      const refreshPromptPreviewButton = document.querySelector("#refresh-prompt-preview-button");
+      const promptPreviewStatus = document.querySelector("#prompt-preview-status");
+      const previewClinician = document.querySelector("#preview-clinician");
+      const previewPatient = document.querySelector("#preview-patient");
+      const previewPrimaryTitle = document.querySelector("#preview-primary-title");
+      const previewCounterpartTitle = document.querySelector("#preview-counterpart-title");
+      const previewEvaluator = document.querySelector("#preview-evaluator");
+      const promptUpdateStatus = document.querySelector("#prompt-update-status");
+      const promptUpdatePreview = document.querySelector("#prompt-update-preview");
+      const promptUpdateRationale = document.querySelector("#prompt-update-rationale");
+      const promptBefore = document.querySelector("#prompt-before");
+      const promptAfter = document.querySelector("#prompt-after");
+      const caseLibrary = document.querySelector("#case-library");
+      const caseSelect = document.querySelector("#case-select");
+      const caseUpload = document.querySelector("#case-upload");
+      const caseTitle = document.querySelector("#case-title");
+      const caseBlurb = document.querySelector("#case-blurb");
+      const caseChips = document.querySelector("#case-chips");
+      const caseDownload = document.querySelector("#case-download");
+      const setupTitle = document.querySelector("#setup-title");
+      const targetSummary = document.querySelector("#target-summary");
+      const targetPromptLabel = document.querySelector("#target-prompt-label");
+      const targetPrompt = document.querySelector("#target-prompt");
+      const targetRoleNote = document.querySelector("#target-role-note");
+      const promptBankCategories = document.querySelector("#prompt-bank-categories");
+      const promptBankStatus = document.querySelector("#prompt-bank-status");
+      const promptBankPrev = document.querySelector("#prompt-bank-prev");
+      const promptBankRandom = document.querySelector("#prompt-bank-random");
+      const promptBankNext = document.querySelector("#prompt-bank-next");
+      const clinicianModel = document.querySelector("#clinician-model");
+      const patientModelSelect = document.querySelector("#patient-model");
+      const clinicianModelNote = document.querySelector("#clinician-model-note");
+      const patientModelNote = document.querySelector("#patient-model-note");
+      const batchPanel = document.querySelector("#batch-panel");
+      const batchClinicianButton = document.querySelector("#batch-clinician-button");
+      const batchCancelButton = document.querySelector("#batch-cancel-button");
+      const batchDownloadButton = document.querySelector("#batch-download-button");
+      const batchStatus = document.querySelector("#batch-status");
+      const batchChart = document.querySelector("#batch-chart");
+      const batchTableBody = document.querySelector("#batch-table-body");
+      const batchRepetitions = document.querySelector("#batch-repetitions");
+      const batchLevelInputs = Array.from(document.querySelectorAll('input[name="batch-level"]'));
+      const staticMessages = Array.from(stream.querySelectorAll(".message"));
+      let runStartedAt = null;
+      let timer = null;
+      let currentController = null;
+      let previewController = null;
+      let previewTimer = null;
+      let batchController = null;
+      let batchResults = [];
+      let latestBatchPayload = null;
+      let activeRunId = 0;
+      const intentionallyAbortedRuns = new Set();
+      let latestReport = null;
+      let latestTranscript = [];
+      let practiceStage = "initial";
+      let baselineSnapshot = null;
+      let selectedCaseId = "case-559";
+      let activeTargetRole = "clinician";
+      const targetPromptDrafts = {
+        clinician: "",
+        patient: "",
+      };
+      const evaluationTargetDrafts = {
+        clinician: "",
+        patient: "",
+      };
+      let activePromptSeed = null;
+      let caseData = [
+        {
+          id: "case-559",
+          title: "Case 559 - Medication history and review: migraine with aura",
+          short_title: "Pharmacist-patient call",
+          patient: "Emily Carter, 29-year-old female",
+          setting: "Hospital pharmacist medication history and review interview",
+          interaction: "Patient-pharmacist medication history and review",
+          primary_role_label: "Pharmacist",
+          counterpart_role_label: "Patient",
+          primary_tune_label: "Tune Pharmacist AI",
+          counterpart_tune_label: "Tune Patient AI",
+          primary_prompt_label: "Pharmacist Prompt",
+          counterpart_prompt_label: "Patient Prompt",
+          case_summary: "A pharmacist takes a medication history and reviews medication-related safety issues for a patient with worsening migraine symptoms, frequent analgesic use, allergy history and contraception safety issues.",
+          chips: ["patient-pharmacist", "medication history and review", "safety", "contraception"],
+        },
+        {
+          id: "case-704",
+          title: "Case 704 - Pharmacist-doctor medication safety call",
+          short_title: "Pharmacist-doctor call",
+          patient: "Dr Arun Patel, general medicine registrar",
+          setting: "Hospital medication safety phone call",
+          interaction: "Pharmacist-doctor medication issue",
+          primary_role_label: "Pharmacist",
+          counterpart_role_label: "Doctor",
+          primary_tune_label: "Tune Pharmacist AI",
+          counterpart_tune_label: "Tune Doctor AI",
+          primary_prompt_label: "Pharmacist Prompt",
+          counterpart_prompt_label: "Doctor Prompt",
+          case_summary: "A pharmacist calls a doctor about a patient with possible upper GI bleeding while taking naproxen and aspirin, requiring urgent medication safety decisions.",
+          chips: ["pharmacist-doctor", "GI bleed risk", "NSAID", "handover"],
+        },
+        {
+          id: "case-831",
+          title: "Case 831 - Nurse-pharmacist medication advice call",
+          short_title: "Nurse-pharmacist call",
+          patient: "Jordan Lee, ward pharmacist",
+          setting: "Antenatal ward medication advice phone call",
+          interaction: "Nurse-pharmacist medication issue",
+          primary_role_label: "Nurse",
+          counterpart_role_label: "Pharmacist",
+          primary_tune_label: "Tune Nurse AI",
+          counterpart_tune_label: "Tune Pharmacist AI",
+          primary_prompt_label: "Nurse Prompt",
+          counterpart_prompt_label: "Pharmacist Prompt",
+          case_summary: "A nurse calls a ward pharmacist about a pregnant patient with urinary symptoms, a penicillin allergy history and questions about safe antibiotic and symptom advice.",
+          chips: ["nurse-pharmacist", "pregnancy", "antibiotics", "allergy"],
+        },
+      ];
+      let customCase = null;
+
+      const DEFAULT_MAX_TURNS = 30;
+      const PATIENT_TEST_MAX_TURNS = 30;
+
+      const labels = {
+        student: "Clinician",
+        clinician: "Clinician",
+        patient: "Patient",
+        evaluator: "Evaluator",
+        error: "Error",
+      };
+
+      function improvementFocusGuidance(focus, role = activeTargetRole, caseItem = selectedCase()) {
+        const target = roleLabelForTarget(role, caseItem);
+        const targetLower = target.toLowerCase();
+        const counterpart = role === "patient" ? primaryRoleLabel(caseItem) : counterpartRoleLabel(caseItem);
+        const counterpartLower = counterpart.toLowerCase();
+        const patientTarget = targetLower === "patient";
+        const configs = {
+          prompt_fidelity: {
+            button: "Improve Assigned Task",
+            label: "assigned-task fidelity",
+            note: `Targeted improvement requested: Assigned Task Fidelity. Make the requested role, emotion, tone, cooperation level, scope, turn-taking and response pattern more visibly reliable. Preserve difficult behaviour when assigned: anger should remain angry, reluctance reluctant, passivity passive, and supportiveness supportive.`,
+          },
+          role_realism: {
+            button: patientTarget ? "Improve Historian Realism" : "Improve Role Realism",
+            label: patientTarget ? "historian realism" : "role realism",
+            note: patientTarget
+              ? `Targeted improvement requested: Historian Realism. Prioritise making the patient sound human, natural, emotionally believable, uncertain where appropriate, and less like a clinical case note, while preserving the user's original persona and other strengths.`
+              : `Targeted improvement requested: Role Realism. Prioritise making the ${targetLower} sound like a believable ${targetLower} in this scenario, with natural professional language, appropriate uncertainty, realistic workflow constraints and clear boundaries with the ${counterpartLower}.`,
+          },
+          information_control: {
+            button: "Improve Information Behaviour",
+            label: "information behaviour",
+            note: patientTarget
+              ? `Targeted improvement requested: Information Behaviour. Prioritise making the amount, timing and precision of information match the user's original persona. Preserve proactive disclosure for a supportive patient, restrained disclosure for a challenging patient, and the requested middle ground for a baseline patient.`
+              : `Targeted improvement requested: Information Behaviour. Prioritise making the amount, timing and precision of information match the user's original ${targetLower} persona without case dumping, unintended withholding or answering both sides of the conversation.`,
+          },
+          portability: {
+            button: "Improve Portability",
+            label: "portability",
+            note: `Targeted improvement requested: Portability. Prioritise making the revised ${targetLower} prompt reusable in another AI platform with a clinical case, without relying on hidden app rules, implementation details, scorecard wording or platform-specific behaviour, while preserving the user's intended role and difficulty.`,
+          },
+        };
+        return configs[focus] || null;
+      }
+
+      const promptBank = {
+        professional: {
+          Baseline: [
+            () => "Handle the main issue competently, but leave some gaps.",
+            () => "Do a routine job and focus mostly on the obvious points.",
+            () => "Keep the discussion brief and cover what seems most important.",
+            () => "Be reasonably helpful, but not especially thorough.",
+            () => "Ask or explain enough to keep the conversation moving.",
+            () => "Follow up obvious points, then move on.",
+            () => "Use an ordinary workday approach and overlook less obvious details.",
+            () => "Balance speed with quality, leaning slightly towards speed.",
+            () => "Be competent, but sometimes accept an unclear answer.",
+            () => "Aim for a useful conversation that is not fully complete.",
+          ],
+          Lazy: [
+            () => "You are tired and want to finish quickly. Say very little.",
+            () => "Rush through the conversation and avoid follow-up.",
+            () => "Be distracted and accept the first answer you receive.",
+            () => "Put in minimal effort and do not explore uncertainty.",
+            () => "Keep your replies abrupt and task-focused.",
+            () => "Use broad questions rather than clarifying details.",
+            () => "Skip anything that is not immediately obvious.",
+            () => "Do not revisit missing or unclear information.",
+            () => "Show little interest and move the conversation along.",
+            () => "Try to finish in as few turns as possible.",
+          ],
+          Diligent: [
+            () => "Be careful and try not to miss anything important.",
+            () => "Be thorough and clarify answers that seem unclear.",
+            () => "Put safety first and ask sensible follow-up questions.",
+            () => "Take your time and check the key details.",
+            () => "Be organised, attentive and professional.",
+            () => "Aim for a complete and accurate conversation.",
+            () => "Be warm with the other person, but remain careful.",
+            () => "Verify information when you are uncertain.",
+            () => "Treat the interaction as important and avoid rushing.",
+            () => "Do a very good job and leave as few gaps as possible.",
+          ],
+        },
+        patient: {
+          Baseline: [
+            () => "Be an ordinary, cooperative patient and let the other person lead.",
+            () => "Answer honestly, but do not add much unless asked.",
+            () => "Be polite and fairly passive, with short answers.",
+            () => "Mostly answer only the question you were asked.",
+            () => "Use average recall and avoid offering extra details.",
+            () => "Let the other person uncover the history through questions.",
+            () => "Be cooperative, but do not anticipate what might matter.",
+            () => "Speak plainly and wait for follow-up questions.",
+            () => "Give one relevant piece of information at a time.",
+            () => "Act like a typical patient who is helpful but incomplete.",
+          ],
+          Challenging: [
+            () => "Be difficult and make the other person work for information.",
+            () => "Have poor recall and often seem unsure.",
+            () => "Be irritated by the questions and answer reluctantly.",
+            () => "Give vague, brief and incomplete answers.",
+            () => "Get side-tracked instead of answering directly.",
+            () => "Misunderstand some questions and need redirecting.",
+            () => "Do not volunteer important details.",
+            () => "Be impatient when the other person keeps pressing.",
+            () => "Confuse some names and details.",
+            () => "Combine poor recall, tangents and minimal answers.",
+          ],
+          Supportive: [
+            () => "Be helpful and volunteer information that seems useful.",
+            () => "Have good recall and answer confidently.",
+            () => "Be engaged and forthcoming.",
+            () => "Give clear answers and try to prevent misunderstandings.",
+            () => "Mention useful context when it comes to mind.",
+            () => "Try to help the other person understand the situation.",
+            () => "Add something later if you realise you forgot it.",
+            () => "Treat the conversation as collaborative.",
+            () => "Answer questions fully and openly.",
+            () => "Make it easy to obtain an accurate picture.",
+          ],
+        },
+      };
+
+      const promptLevels = {
+        clinician: {
+          low: {
+            note: "Low is brief and conversational: one issue at a time, incomplete, and unlikely to cover the whole case in one turn.",
+            text: "You are a busy clinician simulator interviewing a simulated patient. You do not have the case facts or rubric. Keep the conversation simple and low-detail: ask or say one thing at a time, in no more than two short sentences. Do not try to cover the whole case in one message, bundle multiple safety issues together, or sound like you are working through a checklist. You may miss some follow-up and accept vague answers at first; the aim is a realistic brief conversation, not a perfect assessment in a single turn. During the interview, keep each clinician turn conversational and short: at most two short sentences, under about 45 words. Ask about one clinical topic at a time. Do not send numbered lists, bullet lists, checklists, forms, or long questionnaires. If you need several facts, gather them over multiple turns. Speak naturally to the patient. Do not preface turns with process labels, numbering, or descriptions of the question type. When you decide to finish, begin your final answer with exactly 'FINAL:'. Keep the final answer under 180 words and do not use markdown formatting.",
+          },
+          medium: {
+            note: "Medium is the old basic interviewer: generally relevant, but not systematic or especially safety-led.",
+            text: "You are a basic clinician simulator interviewing a simulated patient. You do not have the case facts or rubric. Ask relevant clinical questions and do some follow-up, but stay incomplete and imperfect. You may miss depth, medicine-safety details, red flags, or patient concerns, and you may stop once you think you have a reasonable outline. During the interview, keep each clinician turn conversational and short: at most two short sentences, under about 45 words. Ask about one clinical topic at a time. Do not send numbered lists, bullet lists, checklists, forms, or long questionnaires. If you need several facts, gather them over multiple turns. Speak naturally to the patient. Do not preface turns with process labels, numbering, or descriptions of the question type. When you decide to finish, begin your final answer with exactly 'FINAL:'. Keep the final answer under 200 words and do not use markdown formatting.",
+          },
+          high: {
+            note: "High is the old structured interviewer: systematic and safer, but not given case facts or a hidden rubric.",
+            text: "You are an excellent clinician simulator completing a pharmacy-focused clinical assessment. You do not have the case facts or rubric. Interview the patient systematically, but never as a single intake form. Over several short turns, clarify the main problem, timing, severity, red flags, impact on daily life, current medicines, recently used medicines, allergies or bad reactions, medical history, pregnancy or contraception where relevant, and patient concerns. During the interview, keep each clinician turn conversational and short: at most two short sentences, under about 45 words. Ask about one clinical topic at a time. Do not send numbered lists, bullet lists, checklists, forms, or long questionnaires. If you need several facts, gather them over multiple turns. Do not give a final answer until you have enough information to address the most likely assessment, immediate safety issues, medicine options, medicine risks, counselling and follow-up. Speak naturally to the patient. Do not preface turns with process labels, numbering, or descriptions of the question type. When you have enough information, begin your final answer with exactly 'FINAL:' and then provide a concise assessment and management plan. Keep it under 220 words and do not use markdown formatting.",
+          },
+          custom: {
+            note: "Custom keeps your edited clinician prompt. Use this for prompts generated from evaluator feedback.",
+            text: "",
+          },
+        },
+        patient: {
+          low: {
+            note: "Low makes the patient a limited-detail historian: vague, forgetful, conversational and hard to interview without targeted follow-up.",
+            text: "Act like a limited-detail patient historian. Be vague, forgetful, easily side-tracked, easily overwhelmed by multi-part questions and not very forthcoming. Keep replies short and conversational, usually no more than two sentences. Use grade 10 or simpler English. Miss or avoid most important details unless the clinician asks simple targeted follow-up questions. Do not give exact medicine names, doses, dates, counts, scan results or formal diagnoses unless asked to check a packet, diary, list or letter.",
+          },
+          medium: {
+            note: "Medium makes the patient realistic: cooperative and about 75% forthcoming, but imperfect.",
+            text: "Act like a real-world patient historian. Be cooperative and reasonably forthcoming, but not perfectly organised. Use grade 10 or simpler English. Give about three quarters of the important information when asked sensible questions. Use rough estimates first, forget some details, and become more precise after targeted follow-up or checking notes, packets or letters.",
+          },
+          high: {
+            note: "High makes the patient an excellent historian: clear, organised and highly forthcoming.",
+            text: "Act like an excellent patient historian. Be organised, engaged and very forthcoming. Use grade 10 or simpler English. Explain the main story clearly, volunteer important safety details, and give exact medicine names, dates and counts when relevant. Still sound like a patient, not a clinician.",
+          },
+          custom: {
+            note: "Custom keeps your edited patient prompt. The case supplies facts only.",
+            text: "",
+          },
+        },
+      };
+
+      function selectedCase() {
+        return caseData.find((item) => item.id === selectedCaseId) || caseData[0];
+      }
+
+      function primaryRoleLabel(caseItem = selectedCase()) {
+        return caseItem?.primary_role_label || "Clinician";
+      }
+
+      function counterpartRoleLabel(caseItem = selectedCase()) {
+        return caseItem?.counterpart_role_label || "Patient";
+      }
+
+      function primaryTuneLabel(caseItem = selectedCase()) {
+        return caseItem?.primary_tune_label || `Tune ${primaryRoleLabel(caseItem)} AI`;
+      }
+
+      function counterpartTuneLabel(caseItem = selectedCase()) {
+        return caseItem?.counterpart_tune_label || `Tune ${counterpartRoleLabel(caseItem)} AI`;
+      }
+
+      function roleLabelForTarget(role, caseItem = selectedCase()) {
+        return role === "patient" ? counterpartRoleLabel(caseItem) : primaryRoleLabel(caseItem);
+      }
+
+      function promptLabelForTarget(role, caseItem = selectedCase()) {
+        if (role === "patient") {
+          return caseItem?.counterpart_prompt_label || `${counterpartRoleLabel(caseItem)} Prompt`;
+        }
+        return caseItem?.primary_prompt_label || `${primaryRoleLabel(caseItem)} Prompt`;
+      }
+
+      function targetCopyFor(role = activeTargetRole, caseItem = selectedCase()) {
+        const targetLabel = roleLabelForTarget(role, caseItem);
+        const comparisonLabel = role === "patient" ? primaryRoleLabel(caseItem) : counterpartRoleLabel(caseItem);
+        const targetLower = targetLabel.toLowerCase();
+        const comparisonLower = comparisonLabel.toLowerCase();
+        return {
+          title: role === "patient" ? counterpartTuneLabel(caseItem) : primaryTuneLabel(caseItem),
+          button: `Improve ${targetLabel} Prompt`,
+          status: `Run a practice conversation first. The coach will suggest what to add to the ${targetLower} prompt.`,
+          promptLabel: promptLabelForTarget(role, caseItem),
+          promptPlaceholder: `Enter your ${targetLower} simulator prompt here`,
+          summary: `You are testing the ${targetLower} prompt against a fixed ${comparisonLower} simulator.`,
+          roleNote: `Your ${targetLower} prompt is used as written. The case supplies factual information only.`,
+        };
+      }
+
+      function updateTargetedActionButtons() {
+        const canImprove = practiceStage === "baseline-complete" && Boolean(latestReport);
+        targetedActionButtons.forEach((button) => {
+          const config = improvementFocusGuidance(button.dataset.improvementFocus);
+          if (config) button.textContent = config.button;
+          button.disabled = !canImprove;
+        });
+        targetedActions.hidden = !canImprove;
+        updatePromptButton.disabled = !canImprove;
+      }
+
+      function displayLabel(role) {
+        if (role === "student" || role === "clinician") return primaryRoleLabel();
+        if (role === "patient") return counterpartRoleLabel();
+        return labels[role] || role;
+      }
+
+      function promptBankType(role = activeTargetRole, caseItem = selectedCase()) {
+        return roleLabelForTarget(role, caseItem).toLowerCase() === "patient" ? "patient" : "professional";
+      }
+
+      function promptBankContext(role = activeTargetRole, caseItem = selectedCase()) {
+        const target = roleLabelForTarget(role, caseItem);
+        const primary = primaryRoleLabel(caseItem);
+        const counterpart = counterpartRoleLabel(caseItem);
+        const targetLower = target.toLowerCase();
+        const counterpartForTarget = role === "patient" ? primary : counterpart;
+        const counterpartLower = counterpartForTarget.toLowerCase();
+        let task = "medication-related conversation";
+        let action = `handling a ${task}`;
+
+        if (caseItem.id === "case-559") {
+          task = "medication history and review";
+          action = "conducting a hospital medication history and review with a patient";
+        } else if (caseItem.id === "case-704") {
+          task = "medication safety call";
+          action = role === "patient"
+            ? "responding to a pharmacist's medication safety phone call"
+            : "calling a doctor about a medication safety issue";
+        } else if (caseItem.id === "case-831") {
+          task = "medication advice call";
+          action = role === "patient"
+            ? "responding to a nurse's medication advice call"
+            : "calling a pharmacist about a medication issue";
+        }
+
+        return {
+          roleLower: targetLower,
+          primaryLower: primary.toLowerCase(),
+          counterpartLower,
+          task,
+          action,
+          roleStatement: `You are the ${targetLower} speaking with the ${counterpartLower} during a ${task}.`,
+          settingLower: String(caseItem.setting || "clinical setting").toLowerCase(),
+        };
+      }
+
+      function currentPromptBank() {
+        return promptBank[promptBankType()] || promptBank.professional;
+      }
+
+      function currentPromptBankCategories() {
+        return Object.keys(currentPromptBank());
+      }
+
+      function promptSeedMatchesActive(seed = activePromptSeed) {
+        return Boolean(
+          seed &&
+            seed.caseId === selectedCaseId &&
+            seed.targetRole === activeTargetRole &&
+            seed.type === promptBankType()
+        );
+      }
+
+      function activePromptSeedLabel() {
+        if (!promptSeedMatchesActive()) return "Custom prompt";
+        const prompts = currentPromptBank()[activePromptSeed.category] || [];
+        return `${activePromptSeed.category} ${activePromptSeed.index + 1}/${prompts.length} seed`;
+      }
+
+      function renderPromptBank() {
+        const bank = currentPromptBank();
+        const categories = Object.keys(bank);
+        const matchingSeed = promptSeedMatchesActive() ? activePromptSeed : null;
+        promptBankCategories.innerHTML = categories
+          .map(
+            (category) => `
+              <button class="button small${matchingSeed?.category === category ? " active" : ""}" type="button" data-prompt-bank-category="${escapeHtml(category)}">
+                ${escapeHtml(category)}
+              </button>
+            `
+          )
+          .join("");
+
+        if (matchingSeed) {
+          const total = bank[matchingSeed.category]?.length || 0;
+          promptBankStatus.textContent = `${matchingSeed.category} seed ${matchingSeed.index + 1}/${total} loaded. Edit freely or choose another seed.`;
+        } else {
+          const label = promptBankType() === "patient" ? "Patient history" : roleLabelForTarget(activeTargetRole);
+          promptBankStatus.textContent = `${label} seeds available. Choose one or type your own.`;
+        }
+      }
+
+      function applyPromptBankSeed(category, index = 0) {
+        const type = promptBankType();
+        const bank = promptBank[type] || promptBank.professional;
+        const prompts = bank[category] || [];
+        if (!prompts.length) return;
+        const normalisedIndex = ((index % prompts.length) + prompts.length) % prompts.length;
+        const context = promptBankContext();
+        const prompt = `${context.roleStatement} ${prompts[normalisedIndex](context)}`;
+        targetPrompt.value = prompt;
+        targetPromptDrafts[activeTargetRole] = prompt;
+        evaluationTargetDrafts[activeTargetRole] = prompt;
+        activePromptSeed = {
+          caseId: selectedCaseId,
+          targetRole: activeTargetRole,
+          type,
+          category,
+          index: normalisedIndex,
+        };
+        renderPromptBank();
+        schedulePromptPreview();
+      }
+
+      function movePromptBankSeed(delta) {
+        const categories = currentPromptBankCategories();
+        if (!categories.length) return;
+        const category = promptSeedMatchesActive() ? activePromptSeed.category : categories[0];
+        const prompts = currentPromptBank()[category] || [];
+        const index = promptSeedMatchesActive() ? activePromptSeed.index + delta : 0;
+        if (prompts.length) applyPromptBankSeed(category, index);
+      }
+
+      function randomPromptBankSeed() {
+        const categories = currentPromptBankCategories();
+        if (!categories.length) return;
+        const category = promptSeedMatchesActive()
+          ? activePromptSeed.category
+          : categories[Math.floor(Math.random() * categories.length)];
+        const prompts = currentPromptBank()[category] || [];
+        if (prompts.length) {
+          applyPromptBankSeed(category, Math.floor(Math.random() * prompts.length));
+        }
+      }
+
+      function caseFileName(caseItem) {
+        return `${caseItem.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.json`;
+      }
+
+      function renderCaseSelect() {
+        caseSelect.innerHTML = caseData
+          .map((caseItem) => `<option value="${escapeHtml(caseItem.id)}">${escapeHtml(caseItem.title)}</option>`)
+          .join("");
+        caseSelect.value = selectedCaseId;
+      }
+
+      function tuneButtonsForCase(caseItem) {
+        const primaryButton = { role: "clinician", label: primaryTuneLabel(caseItem) };
+        const counterpartButton = { role: "patient", label: counterpartTuneLabel(caseItem) };
+        const buttons = counterpartRoleLabel(caseItem).toLowerCase() === "patient"
+          ? [counterpartButton, primaryButton]
+          : [primaryButton, counterpartButton];
+        return buttons
+          .map(
+            (button, index) => `
+              <button class="button small${index === 0 ? " primary" : ""}" data-open-case="${escapeHtml(caseItem.id)}" data-target-role="${escapeHtml(button.role)}">
+                ${escapeHtml(button.label)}
+              </button>
+            `
+          )
+          .join("");
+      }
+
+      function renderCaseCards() {
+        caseLibrary.innerHTML = caseData
+          .map(
+            (caseItem) => `
+              <article class="case-card ${caseItem.id === selectedCaseId ? "active" : ""}" data-case-id="${escapeHtml(caseItem.id)}">
+                <div>
+                  <div class="case-card-kicker">Practice module</div>
+                  <div class="case-card-title">${escapeHtml(caseItem.short_title || caseItem.title)}</div>
+                  <div class="case-card-meta">${escapeHtml(caseItem.setting || "")}</div>
+                </div>
+                <div class="case-card-summary">${escapeHtml(caseItem.case_summary || "")}</div>
+                <div class="case-card-actions">
+                  ${tuneButtonsForCase(caseItem)}
+                </div>
+              </article>
+            `
+          )
+          .join("");
+      }
+
+      function updateCasePanel() {
+        const caseItem = selectedCase();
+        caseTitle.textContent = caseItem.title;
+        caseBlurb.textContent = caseItem.case_summary || "";
+        caseChips.innerHTML = "";
+        (caseItem.chips || []).forEach((chip) => {
+          const node = document.createElement("span");
+          node.className = "chip";
+          node.textContent = chip;
+          caseChips.appendChild(node);
+        });
+
+        if (caseItem.custom && customCase) {
+          const blob = new Blob([JSON.stringify(customCase, null, 2)], { type: "application/json" });
+          caseDownload.href = URL.createObjectURL(blob);
+        } else {
+          caseDownload.href = `/api/case-file?caseId=${encodeURIComponent(caseItem.id)}`;
+        }
+        caseDownload.download = caseFileName(caseItem);
+        caseDownload.textContent = "Download Scenario";
+        caseChips.appendChild(caseDownload);
+      }
+
+      function selectCase(caseId) {
+        selectedCaseId = caseId;
+        renderCaseSelect();
+        renderCaseCards();
+        updateCasePanel();
+      }
+
+      async function loadCases() {
+        try {
+          const response = await fetch("/api/cases");
+          const data = await response.json();
+          if (Array.isArray(data.cases) && data.cases.length) {
+            caseData = data.cases;
+            selectedCaseId = data.defaultCaseId || caseData[0].id;
+          }
+        } catch (error) {
+          // Keep the local fallback case list.
+        }
+        selectCase(selectedCaseId);
+      }
+
+      function currentCasePayload() {
+        const payload = { caseId: selectedCaseId };
+        if (customCase && selectedCaseId === customCase.id) {
+          payload.customCase = customCase;
+        }
+        return payload;
+      }
+
+      function showHome() {
+        homeView.hidden = false;
+        workspaceView.hidden = true;
+        app.classList.add("home-mode");
+        app.classList.remove("workspace-mode");
+      }
+
+      function showWorkspace() {
+        homeView.hidden = true;
+        workspaceView.hidden = false;
+        app.classList.remove("home-mode");
+        app.classList.add("workspace-mode");
+      }
+
+      function resetPracticeSequenceForContext() {
+        if (currentController) {
+          intentionallyAbortedRuns.add(activeRunId);
+          currentController.abort();
+          currentController = null;
+          stopTimer();
+        }
+        practiceStage = "initial";
+        baselineSnapshot = null;
+        evaluationTargetDrafts[activeTargetRole] = targetPrompt.value;
+        setPromptEditingLocked(false);
+        clearRun();
+        updateRunButtonForStage();
+      }
+
+      function openCase(caseId, targetRole = "clinician") {
+        targetPromptDrafts[activeTargetRole] = targetPrompt.value;
+        activeTargetRole = targetRole === "patient" ? "patient" : "clinician";
+        selectCase(caseId);
+        updateTargetUI();
+        resetPracticeSequenceForContext();
+        showWorkspace();
+        schedulePromptPreview();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function updateTargetUI() {
+        const copy = targetCopyFor(activeTargetRole);
+        setupTitle.textContent = copy.title;
+        targetPromptLabel.textContent = copy.promptLabel;
+        targetPrompt.placeholder = copy.promptPlaceholder;
+        targetPrompt.value = targetPromptDrafts[activeTargetRole] || "";
+        targetSummary.textContent = copy.summary;
+        targetRoleNote.textContent = copy.roleNote;
+        updatePromptButton.textContent = copy.button;
+        if (previewPrimaryTitle) previewPrimaryTitle.textContent = primaryRoleLabel();
+        if (previewCounterpartTitle) previewCounterpartTitle.textContent = counterpartRoleLabel();
+        if (clinicianModelNote) {
+          clinicianModelNote.textContent = `Runs the ${primaryRoleLabel().toLowerCase()} simulator. ${
+            activeTargetRole === "clinician"
+              ? "This is the AI model being tested for the primary-role prompt."
+              : "This is the fixed comparison simulator for this run."
+          }`;
+        }
+        if (patientModelNote) {
+          patientModelNote.textContent = `Runs the ${counterpartRoleLabel().toLowerCase()} simulator. ${
+            activeTargetRole === "patient"
+              ? "This is the AI model being tested for the counterpart-role prompt."
+              : "This is the fixed comparison simulator for this run."
+          }`;
+        }
+        renderPromptBank();
+        updateTargetedActionButtons();
+        if (!latestReport) {
+          promptUpdateStatus.textContent = copy.status;
+        }
+        batchPanel.hidden = activeTargetRole !== "clinician";
+      }
+
+      function activeValue(control) {
+        const active =
+          Array.from(document.querySelectorAll(`[data-control="${control}"] .segment.active`)).find((button) => button.offsetParent !== null) ||
+          document.querySelector(`[data-control="${control}"] .segment.active`);
+        return active ? active.dataset.value : "";
+      }
+
+      function activeLabel(control) {
+        const active =
+          Array.from(document.querySelectorAll(`[data-control="${control}"] .segment.active`)).find((button) => button.offsetParent !== null) ||
+          document.querySelector(`[data-control="${control}"] .segment.active`);
+        return active ? active.textContent.trim() : "";
+      }
+
+      function setActiveValue(control, value) {
+        document.querySelectorAll(`[data-control="${control}"]`).forEach((group) => {
+          group.querySelectorAll(".segment").forEach((button) => {
+            button.classList.toggle("active", button.dataset.value === value);
+          });
+        });
+      }
+
+      function setMetric(index, metric) {
+        const tile = document.querySelector(`#metric-${index}`);
+        if (!tile || !metric) return;
+        tile.querySelector(".metric-name").textContent = metric.name || "Metric";
+        const currentScore = metric.score || "n/a";
+        const baselineScore = metric.baseline_score;
+        const delta = scoreNumber(metric.delta);
+        tile.querySelector(".metric-value").textContent = baselineScore
+          ? `${currentScore} · was ${baselineScore}${delta === null ? "" : ` · ${delta >= 0 ? "+" : ""}${delta}`}`
+          : currentScore;
+        tile.querySelector(".metric-note").textContent = metric.note || "";
+      }
+
+      function setOverallPromptScore(value, comparison = null) {
+        const score = scoreNumber(value);
+        if (score === null) {
+          overallPromptScore.textContent = "-- / 100";
+          return;
+        }
+        const rounded = Math.round(score * 10) / 10;
+        const baseline = scoreNumber(comparison?.baseline_score);
+        const delta = scoreNumber(comparison?.delta);
+        overallPromptScore.textContent = baseline === null
+          ? `${rounded} / 100`
+          : `${rounded} / 100 · was ${Math.round(baseline * 10) / 10}${delta === null ? "" : ` · ${delta >= 0 ? "+" : ""}${delta}`}`;
+      }
+
+      function setPromptEditingLocked(locked) {
+        targetPrompt.disabled = locked;
+        clinicianModel.disabled = locked;
+        patientModelSelect.disabled = locked;
+        [promptBankPrev, promptBankRandom, promptBankNext].forEach((button) => {
+          button.disabled = locked;
+        });
+        batchRepetitions.disabled = locked;
+        batchLevelInputs.forEach((input) => {
+          input.disabled = locked;
+        });
+        if (!batchController) {
+          batchClinicianButton.disabled = locked;
+        }
+        promptBankCategories.querySelectorAll("button").forEach((button) => {
+          button.disabled = locked;
+        });
+      }
+
+      function updateRunButtonForStage() {
+        if (currentController) {
+          runButton.disabled = true;
+          runButton.textContent = "Running...";
+          return;
+        }
+        if (practiceStage === "baseline-complete") {
+          runButton.disabled = true;
+          runButton.textContent = "Choose an Improvement";
+          return;
+        }
+        if (practiceStage === "improved-ready") {
+          runButton.disabled = false;
+          runButton.textContent = "Run Improved Prompt";
+          return;
+        }
+        if (practiceStage === "complete") {
+          runButton.disabled = true;
+          runButton.textContent = "Practice Complete";
+          return;
+        }
+        runButton.disabled = false;
+        runButton.textContent = "Run Practice";
+      }
+
+      function appendMessage(role, content, isFinal = false) {
+        removeTyping(role);
+        const message = document.createElement("div");
+        message.className = `message ${role}`;
+
+        const speaker = document.createElement("div");
+        speaker.className = "speaker";
+        const speakerLabel = displayLabel(role);
+        speaker.textContent = isFinal ? `${speakerLabel} Final` : speakerLabel;
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        if (isFinal && String(content).length > 1600) {
+          const preview = String(content).slice(0, 900).replace(/\s+\S*$/, "");
+          bubble.innerHTML = `
+            ${formatRichText(preview)}
+            <br><br><em>Final answer shortened in the transcript.</em>
+            <details class="final-details">
+              <summary>Show full final answer</summary>
+              <div>${formatRichText(content)}</div>
+            </details>
+          `;
+        } else if (role === "evaluator" || role === "error") {
+          bubble.innerHTML = `<strong>${role === "error" ? "Run error" : "Live note"}:</strong> ${formatRichText(content)}`;
+        } else {
+          bubble.innerHTML = formatRichText(content);
+        }
+
+        message.append(speaker, bubble);
+        stream.appendChild(message);
+        if (["student", "patient", "evaluator"].includes(role)) {
+          latestTranscript.push({
+            role,
+            content,
+            final: Boolean(isFinal),
+            time: new Date().toISOString(),
+          });
+        }
+        message.scrollIntoView({ block: "end", behavior: "smooth" });
+      }
+
+      function appendTyping(role) {
+        removeTyping(role);
+        const message = document.createElement("div");
+        message.className = `message ${role} typing`;
+        message.dataset.typingRole = role;
+
+        const speaker = document.createElement("div");
+        speaker.className = "speaker";
+        const speakerLabel = displayLabel(role);
+        speaker.textContent = speakerLabel;
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.innerHTML = `${escapeHtml(speakerLabel)} typing <span class="typing-dots"><span></span><span></span><span></span></span>`;
+
+        message.append(speaker, bubble);
+        stream.appendChild(message);
+        message.scrollIntoView({ block: "end", behavior: "smooth" });
+      }
+
+      function removeTyping(role) {
+        const selector = role ? `.message.typing[data-typing-role="${role}"]` : ".message.typing";
+        stream.querySelectorAll(selector).forEach((message) => message.remove());
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function formatRichText(value) {
+        return escapeHtml(value)
+          .replace(/^#{1,6}\s*/gm, "")
+          .replace(/\*\*([^*]+?)\*\*/g, "$1")
+          .replace(/\*([^*]+?)\*/g, "$1")
+          .replace(/\n/g, "<br>");
+      }
+
+      function clearRun({ preservePromptUpdate = false } = {}) {
+        staticMessages.forEach((message) => message.remove());
+        stream.querySelectorAll(".message").forEach((message) => message.remove());
+        latestReport = null;
+        latestTranscript = [];
+        updatePromptButton.disabled = true;
+        targetedActions.hidden = true;
+        targetedActionButtons.forEach((button) => {
+          button.disabled = true;
+        });
+        if (!preservePromptUpdate) {
+          promptUpdatePreview.hidden = true;
+          promptBefore.textContent = "";
+          promptAfter.textContent = "";
+          promptUpdateRationale.textContent = "";
+          promptUpdateStatus.textContent = targetCopyFor(activeTargetRole).status;
+        }
+        setOverallPromptScore(null);
+        assignedContractGuidance.textContent = "The evaluator will freeze the behaviour requested by Prompt A.";
+        clinicalPerformanceGuidance.textContent = "Shown separately for healthcare-professional roles so it cannot cancel behavioural fidelity.";
+        promptFidelityGuidance.textContent = "Run a conversation to receive a qualitative fidelity pointer.";
+        promptPortabilityGuidance.textContent = "Run a conversation to receive a qualitative portability pointer.";
+        document.querySelector("#turns").textContent = `0 / ${currentMaxTurns()}`;
+        document.querySelector("#info-uncovered").textContent = "--";
+        document.querySelector("#risk-flags").textContent = "--";
+        for (let i = 0; i < 4; i += 1) {
+          setMetric(i, { name: "Pending", score: "--", note: "Waiting for evaluator output." });
+        }
+      }
+
+      function startTimer() {
+        runStartedAt = Date.now();
+        clearInterval(timer);
+        timer = setInterval(() => {
+          const elapsed = Math.floor((Date.now() - runStartedAt) / 1000);
+          const minutes = String(Math.floor(elapsed / 60)).padStart(2, "0");
+          const seconds = String(elapsed % 60).padStart(2, "0");
+          document.querySelector("#run-time").textContent = `${minutes}:${seconds} elapsed`;
+        }, 500);
+      }
+
+      function stopTimer() {
+        clearInterval(timer);
+      }
+
+      function updateStatus(event) {
+        if (event.turn) {
+          document.querySelector("#turns").textContent = `${event.turn} / ${event.maxTurns || currentMaxTurns()}`;
+        }
+        if (event.phase === "evaluator") {
+          document.querySelector("#info-uncovered").textContent = "scoring";
+          document.querySelector("#risk-flags").textContent = "checking";
+        }
+      }
+
+      function resetCase() {
+        if (currentController) {
+          intentionallyAbortedRuns.add(activeRunId);
+          currentController.abort();
+          currentController = null;
+        }
+        stopTimer();
+        practiceStage = "initial";
+        baselineSnapshot = null;
+        evaluationTargetDrafts[activeTargetRole] = targetPrompt.value;
+        setPromptEditingLocked(false);
+        clearRun();
+        document.querySelector("#run-time").textContent = "00:00 elapsed";
+        updateRunButtonForStage();
+        appendMessage("evaluator", "Practice reset. Choose settings and run again.");
+      }
+
+      function friendlyErrorMessage(error) {
+        if (window.location.protocol === "file:") {
+          return "This page is open as a file, so it cannot call the local prototype server. Open http://127.0.0.1:8765/ instead.";
+        }
+        const message = String(error?.message || error || "Unknown error");
+        if (message === "Load failed" || message.includes("Failed to fetch")) {
+          return "Connection to the local prototype server was interrupted. Refresh the page or retry the run.";
+        }
+        return message;
+      }
+
+      function isLocalConnectionError(error) {
+        const message = String(error?.message || error || "");
+        return message === "Load failed" || message.includes("Failed to fetch");
+      }
+
+      function wait(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      function currentMaxTurns() {
+        return activeTargetRole === "patient" ? PATIENT_TEST_MAX_TURNS : DEFAULT_MAX_TURNS;
+      }
+
+      function buildRunPayload() {
+        const comparison = practiceStage === "improved-ready" && baselineSnapshot;
+        const evaluationTargetPrompt = comparison
+          ? baselineSnapshot.prompt
+          : evaluationTargetDrafts[activeTargetRole] || targetPrompt.value;
+        if (!comparison) {
+          evaluationTargetDrafts[activeTargetRole] = evaluationTargetPrompt;
+        }
+        const payload = {
+          ...currentCasePayload(),
+          targetRole: activeTargetRole,
+          promptLevel: "low",
+          targetPrompt: targetPrompt.value,
+          evaluationTargetPrompt,
+          clinicianModel: clinicianModel.value,
+          studentModel: clinicianModel.value,
+          patientModel: patientModelSelect.value,
+        };
+        if (comparison) {
+          payload.evaluationMode = "comparison";
+          payload.baselineReport = baselineSnapshot.report;
+          payload.baselineTranscript = baselineSnapshot.transcript;
+        }
+        return payload;
+      }
+
+      function formatPreviewMessages(messages) {
+        if (!Array.isArray(messages) || !messages.length) return "No messages.";
+        return messages
+          .map((message, index) => {
+            const role = String(message.role || "message").toUpperCase();
+            const content = String(message.content || "").trim();
+            return `[${index + 1}] ${role}\n${content}`;
+          })
+          .join("\n\n---\n\n");
+      }
+
+      function renderPromptPreview(preview) {
+        if (!preview || preview.error) {
+          const message = preview?.error || "Prompt preview unavailable.";
+          promptPreviewStatus.textContent = message;
+          previewClinician.textContent = "No preview.";
+          previewPatient.textContent = "No preview.";
+          previewEvaluator.textContent = "No preview.";
+          return;
+        }
+
+        const roleLabel = `${roleLabelForTarget(preview.targetRole || activeTargetRole).toLowerCase()} prompt`;
+        const notes = Array.isArray(preview.notes) && preview.notes.length
+          ? ` ${preview.notes.join(" ")}`
+          : "";
+        promptPreviewStatus.textContent = `${preview.caseTitle || "Selected case"} · testing ${roleLabel} · ${preview.maxExchanges || currentMaxTurns()} exchange cap.${notes}`;
+        previewClinician.textContent = formatPreviewMessages(preview.clinician);
+        previewPatient.textContent = formatPreviewMessages(preview.patient);
+        previewEvaluator.textContent = formatPreviewMessages(preview.evaluator);
+      }
+
+      async function refreshPromptPreview() {
+        if (window.location.protocol === "file:") {
+          renderPromptPreview({ error: "Open http://127.0.0.1:8765/ to preview server-built prompts." });
+          return;
+        }
+        if (workspaceView.hidden) return;
+        if (previewController) {
+          previewController.abort();
+        }
+
+        const controller = new AbortController();
+        previewController = controller;
+        promptPreviewStatus.textContent = "Refreshing prompt preview...";
+        try {
+          const response = await fetch("/api/prompt-preview", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(buildRunPayload()),
+            signal: controller.signal,
+          });
+          const preview = await response.json();
+          renderPromptPreview(preview);
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            renderPromptPreview({ error: friendlyErrorMessage(error) });
+          }
+        } finally {
+          if (previewController === controller) {
+            previewController = null;
+          }
+        }
+      }
+
+      function schedulePromptPreview() {
+        clearTimeout(previewTimer);
+        previewTimer = setTimeout(refreshPromptPreview, 250);
+      }
+
+      function reportSummary(report) {
+        const summary = String(report.summary || "Evaluation complete.");
+        return summary.trim().startsWith("{")
+          ? "Evaluation complete. Scorecard updated below."
+          : summary;
+      }
+
+      function baselineReportSnapshot(report) {
+        return {
+          score: report.score,
+          metrics: (report.metrics || []).slice(0, 4).map((metric) => ({
+            name: metric.name,
+            score: metric.score,
+            note: metric.note,
+          })),
+          summary: report.summary || "",
+          critical_omissions: Array.isArray(report.critical_omissions) ? report.critical_omissions : [],
+          prompt_guidance: {
+            fidelity: report.prompt_guidance?.fidelity || "",
+            portability: report.prompt_guidance?.portability || "",
+          },
+          behaviour_contract: report.behaviour_contract || {},
+          clinical_evaluation: report.clinical_evaluation || { applicable: false },
+          scoring_version: report.scoring_version || "",
+        };
+      }
+
+      function renderAssignedContract(contract) {
+        if (!contract || typeof contract !== "object") {
+          return "Assigned behaviour contract was unavailable.";
+        }
+        const summary = String(contract.assigned_task_summary || "").trim();
+        const observable = Array.isArray(contract.observable_success)
+          ? contract.observable_success.filter(Boolean).slice(0, 2).join(" ")
+          : "";
+        return [summary, observable].filter(Boolean).join(" ") || "Assigned behaviour contract was unavailable.";
+      }
+
+      function renderClinicalPerformance(clinical) {
+        if (!clinical?.applicable) {
+          return "Not applicable to this lay-role target. Behavioural fidelity remains the primary score.";
+        }
+        const score = scoreNumber(clinical.score);
+        const delta = scoreNumber(clinical.delta);
+        const flags = Array.isArray(clinical.safety_flags) ? clinical.safety_flags.length : 0;
+        const scoreText = score === null ? "unavailable" : `${Math.round(score * 10) / 10} / 100`;
+        const deltaText = delta === null ? "" : ` (${delta >= 0 ? "+" : ""}${delta} vs baseline)`;
+        return `${scoreText}${deltaText}. ${flags} safety flag${flags === 1 ? "" : "s"}. This score is deliberately separate from assigned-task fidelity.`;
+      }
+
+      function coachFeedback(report) {
+        const omissions = Array.isArray(report.critical_omissions)
+          ? report.critical_omissions.filter(Boolean).slice(0, 3)
+          : [];
+        if (!omissions.length) {
+          return `The initial scorecard is ready. Use an improvement button to create Prompt B, then run it for the final comparison.`;
+        }
+        return `Prompt A may improve if it addresses: ${omissions.join("; ")}. Use an improvement button to create Prompt B, then run it for the final comparison.`;
+      }
+
+      function comparisonFeedback(report) {
+        const delta = scoreNumber(report.comparison?.delta);
+        if (delta === null) {
+          return "The final comparison is complete. Review what improved, remained unchanged or worsened, then restart practice to begin a new cycle.";
+        }
+        const direction = delta > 0 ? "improved" : delta < 0 ? "decreased" : "was unchanged";
+        const amount = delta === 0 ? "" : ` by ${Math.abs(delta)} points`;
+        return `The updated conversation ${direction}${amount} against Prompt A. Review the comparison above, then restart practice to begin a new cycle.`;
+      }
+
+      async function improvePrompt(focus = "") {
+        if (practiceStage !== "baseline-complete" || !latestReport || !baselineSnapshot) {
+          promptUpdateStatus.textContent = "Run a practice first so there is evaluator feedback to use.";
+          return;
+        }
+
+        const copy = targetCopyFor(activeTargetRole);
+        const before = baselineSnapshot.prompt;
+        evaluationTargetDrafts[activeTargetRole] = before;
+        const focusConfig = improvementFocusGuidance(focus);
+        const targetLabel = roleLabelForTarget(activeTargetRole).toLowerCase();
+        const comparisonLabel = activeTargetRole === "patient" ? primaryRoleLabel().toLowerCase() : counterpartRoleLabel().toLowerCase();
+        const targetedNotes = [
+          `Improve the ${targetLabel} prompt for this scenario. The comparison ${comparisonLabel} simulator stays consistent across runs.`,
+          focusConfig?.note || "",
+        ]
+          .filter(Boolean)
+          .join("\n\n");
+
+        updatePromptButton.disabled = true;
+        targetedActionButtons.forEach((button) => {
+          button.disabled = true;
+        });
+        updatePromptButton.textContent = "Updating...";
+        promptUpdateStatus.textContent = focusConfig
+          ? `Generating revised ${targetLabel} prompt focused on ${focusConfig.label}.`
+          : `Generating revised ${targetLabel} prompt from evaluator feedback.`;
+
+        try {
+          const response = await fetch("/api/improve-prompt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...currentCasePayload(),
+              model: clinicianModel.value,
+              promptTarget: activeTargetRole,
+              currentPrompt: before,
+              report: baselineSnapshot.report,
+              transcript: baselineSnapshot.transcript,
+              notes: targetedNotes,
+            }),
+          });
+
+          const result = await response.json();
+          if (result.error) {
+            throw new Error(result.error);
+          }
+
+          targetPrompt.value = result.prompt;
+          targetPromptDrafts[activeTargetRole] = result.prompt;
+          promptBefore.textContent = before;
+          promptAfter.textContent = result.prompt;
+          promptUpdateRationale.textContent = result.rationale || "Improved version generated from evaluator feedback.";
+          promptUpdatePreview.hidden = false;
+          practiceStage = "improved-ready";
+          setPromptEditingLocked(true);
+          promptUpdateStatus.textContent = result.rationale
+            ? `Prompt B is ready${focusConfig ? ` with ${focusConfig.label} focus` : ""}: ${result.rationale}`
+            : "Prompt B is ready. Run the improved prompt to compare it with Prompt A.";
+          appendMessage("evaluator", `${copy.button} complete. Prompt A and its scores have been retained. Run Prompt B for the final comparison.`);
+          updateTargetedActionButtons();
+          updateRunButtonForStage();
+          schedulePromptPreview();
+        } catch (error) {
+          promptUpdateStatus.textContent = error.message;
+          appendMessage("error", error.message);
+        } finally {
+          updatePromptButton.textContent = copy.button;
+          updateTargetedActionButtons();
+          updateRunButtonForStage();
+        }
+      }
+
+      function scoreNumber(value) {
+        if (typeof value === "number" && Number.isFinite(value)) return value;
+        const match = String(value ?? "").match(/-?\d+(?:\.\d+)?/);
+        return match ? Number(match[0]) : null;
+      }
+
+      function formatScore(value) {
+        const score = scoreNumber(value);
+        return score === null ? "--" : String(Math.round(score * 10) / 10);
+      }
+
+      function formatDelta(value) {
+        const delta = scoreNumber(value);
+        if (delta === null) return "--";
+        return `${delta >= 0 ? "+" : ""}${Math.round(delta * 10) / 10}`;
+      }
+
+      function linearFit(points) {
+        const valid = points.filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+        if (valid.length < 2) return null;
+        const n = valid.length;
+        const sumX = valid.reduce((sum, point) => sum + point.x, 0);
+        const sumY = valid.reduce((sum, point) => sum + point.y, 0);
+        const sumXY = valid.reduce((sum, point) => sum + point.x * point.y, 0);
+        const sumXX = valid.reduce((sum, point) => sum + point.x * point.x, 0);
+        const denominator = n * sumXX - sumX * sumX;
+        if (!denominator) return null;
+        const slope = (n * sumXY - sumX * sumY) / denominator;
+        const intercept = (sumY - slope * sumX) / n;
+        return { slope, intercept };
+      }
+
+      function renderBatchTable(items) {
+        batchTableBody.innerHTML = items
+          .map(
+            (item) => `
+              <tr>
+                <td>${escapeHtml(item.index)}</td>
+                <td>${escapeHtml(batchLevelLabel(item.level))}</td>
+                <td>${escapeHtml(item.repetition || "")}</td>
+                <td>${escapeHtml(formatScore(item.beforeScore))}</td>
+                <td>${escapeHtml(formatScore(item.afterScore))}</td>
+                <td>${escapeHtml(formatDelta(item.delta))}</td>
+                <td>${escapeHtml(item.rationale || "")}</td>
+              </tr>
+            `
+          )
+          .join("");
+      }
+
+      function renderBatchChart(items) {
+        const scored = items
+          .map((item) => ({
+            index: Number(item.index),
+            before: scoreNumber(item.beforeScore),
+            after: scoreNumber(item.afterScore),
+          }))
+          .filter((item) => Number.isFinite(item.index));
+
+        if (!scored.length) {
+          batchChart.innerHTML = '<div class="chart-empty">Batch results will plot here.</div>';
+          return;
+        }
+
+        const width = 720;
+        const height = 280;
+        const pad = { left: 48, right: 20, top: 24, bottom: 38 };
+        const plotWidth = width - pad.left - pad.right;
+        const plotHeight = height - pad.top - pad.bottom;
+        const xMax = Math.max(2, ...scored.map((item) => item.index));
+        const xScale = (x) => pad.left + ((x - 1) / Math.max(1, xMax - 1)) * plotWidth;
+        const yScale = (y) => pad.top + (1 - Math.max(0, Math.min(100, y)) / 100) * plotHeight;
+        const yTicks = [0, 20, 40, 60, 80, 100];
+        const xTickStep = Math.max(1, Math.ceil(xMax / 10));
+        const xTicks = Array.from({ length: Math.floor((xMax - 1) / xTickStep) + 1 }, (_, index) => 1 + index * xTickStep);
+        if (!xTicks.includes(xMax)) xTicks.push(xMax);
+        const beforePoints = scored
+          .filter((item) => item.before !== null)
+          .map((item) => ({ x: item.index, y: item.before }));
+        const afterPoints = scored
+          .filter((item) => item.after !== null)
+          .map((item) => ({ x: item.index, y: item.after }));
+        const beforeFit = linearFit(beforePoints);
+        const afterFit = linearFit(afterPoints);
+        const trendLine = (fit, color) => {
+          if (!fit) return "";
+          const y1 = fit.slope * 1 + fit.intercept;
+          const y2 = fit.slope * xMax + fit.intercept;
+          return `<line x1="${xScale(1)}" y1="${yScale(y1)}" x2="${xScale(xMax)}" y2="${yScale(y2)}" stroke="${color}" stroke-width="2.5" stroke-dasharray="6 5" />`;
+        };
+
+        batchChart.innerHTML = `
+          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Before and after batch rubric scores">
+            <rect width="${width}" height="${height}" fill="#fffaf2"></rect>
+            ${yTicks
+              .map(
+                (tick) => `
+                  <line x1="${pad.left}" y1="${yScale(tick)}" x2="${width - pad.right}" y2="${yScale(tick)}" stroke="#d9e0df" stroke-width="1" />
+                  <text x="${pad.left - 10}" y="${yScale(tick) + 4}" text-anchor="end" fill="#647172" font-size="11">${tick}</text>
+                `
+              )
+              .join("")}
+            ${xTicks
+              .map(
+                (tick) => `
+                  <text x="${xScale(tick)}" y="${height - 13}" text-anchor="middle" fill="#647172" font-size="10">${tick}</text>
+                `
+              )
+              .join("")}
+            <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${height - pad.bottom}" stroke="#98a5a4" stroke-width="1.5" />
+            <line x1="${pad.left}" y1="${height - pad.bottom}" x2="${width - pad.right}" y2="${height - pad.bottom}" stroke="#98a5a4" stroke-width="1.5" />
+            ${trendLine(beforeFit, "#345f91")}
+            ${trendLine(afterFit, "#0d766f")}
+            ${beforePoints
+              .map((point) => `<circle cx="${xScale(point.x)}" cy="${yScale(point.y)}" r="5" fill="#345f91" opacity="0.84" />`)
+              .join("")}
+            ${afterPoints
+              .map((point) => `<circle cx="${xScale(point.x)}" cy="${yScale(point.y)}" r="5" fill="#0d766f" opacity="0.9" />`)
+              .join("")}
+            <text x="${pad.left}" y="15" fill="#334044" font-size="12" font-weight="800">Rubric score</text>
+            <text x="${width - pad.right}" y="${height - 13}" text-anchor="end" fill="#334044" font-size="12" font-weight="800">Trial</text>
+            <circle cx="${width - 164}" cy="18" r="5" fill="#345f91"></circle>
+            <text x="${width - 154}" y="22" fill="#334044" font-size="11">Before</text>
+            <circle cx="${width - 98}" cy="18" r="5" fill="#0d766f"></circle>
+            <text x="${width - 88}" y="22" fill="#334044" font-size="11">After</text>
+          </svg>
+        `;
+      }
+
+      function renderBatchResults(items) {
+        renderBatchChart(items);
+        renderBatchTable(items);
+        batchDownloadButton.disabled = !items.length;
+      }
+
+      function batchLevelLabel(level) {
+        return {
+          low: "Low",
+          medium: "Medium",
+          high: "High",
+        }[level] || String(level || "");
+      }
+
+      function selectedBatchLevels() {
+        return batchLevelInputs.filter((input) => input.checked).map((input) => input.value);
+      }
+
+      function batchRepetitionCount() {
+        const value = Number(batchRepetitions.value);
+        if (!Number.isFinite(value)) return 1;
+        return Math.max(1, Math.min(25, Math.round(value)));
+      }
+
+      function updateBatchButtonLabel() {
+        const levels = selectedBatchLevels();
+        const repetitions = batchRepetitionCount();
+        const total = levels.length * repetitions;
+        const levelText = levels.length ? levels.map(batchLevelLabel).join(" + ") : "No levels";
+        batchClinicianButton.textContent = total
+          ? `Run ${total} Optimisations`
+          : "Choose Levels";
+        batchStatus.textContent = levels.length
+          ? `Ready: ${repetitions} repetition${repetitions === 1 ? "" : "s"} per level (${levelText}).`
+          : "Choose at least one starting prompt level.";
+      }
+
+      function downloadBatchResults() {
+        if (!batchResults.length) return;
+        const caseItem = selectedCase();
+        const payload = {
+          exportedAt: new Date().toISOString(),
+          caseId: selectedCaseId,
+          caseTitle: caseItem.title,
+          clinicianModel: clinicianModel.value,
+          patientModel: patientModelSelect.value,
+          temperature: latestBatchPayload?.simulationTemperature ?? 0.7,
+          evaluatorTemperature: latestBatchPayload?.evaluatorTemperature ?? 0,
+          settings: latestBatchPayload || {
+            levels: selectedBatchLevels(),
+            repetitionsPerLevel: batchRepetitionCount(),
+          },
+          results: batchResults,
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const link = document.createElement("a");
+        const stamp = new Date().toISOString().slice(0, 19).replaceAll(":", "-");
+        link.href = URL.createObjectURL(blob);
+        link.download = `clinician-batch-${caseItem.id}-${stamp}.json`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(link.href);
+      }
+
+      document.querySelectorAll(".segmented").forEach((group) => {
+        group.addEventListener("click", (event) => {
+          if (!event.target.classList.contains("segment")) return;
+          const control = group.dataset.control;
+          const value = event.target.dataset.value;
+          setActiveValue(control, value);
+        });
+      });
+
+      targetPrompt.addEventListener("input", () => {
+        targetPromptDrafts[activeTargetRole] = targetPrompt.value;
+        if (practiceStage === "initial" && !baselineSnapshot) {
+          evaluationTargetDrafts[activeTargetRole] = targetPrompt.value;
+        }
+        if (activePromptSeed) {
+          activePromptSeed = null;
+          renderPromptBank();
+        }
+        schedulePromptPreview();
+      });
+
+      promptBankCategories.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-prompt-bank-category]");
+        if (!button) return;
+        applyPromptBankSeed(button.dataset.promptBankCategory, 0);
+      });
+
+      promptBankPrev.addEventListener("click", () => movePromptBankSeed(-1));
+      promptBankNext.addEventListener("click", () => movePromptBankSeed(1));
+      promptBankRandom.addEventListener("click", randomPromptBankSeed);
+
+      caseLibrary.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-open-case]");
+        if (!button) return;
+        openCase(button.dataset.openCase, button.dataset.targetRole);
+      });
+
+      caseSelect.addEventListener("change", (event) => {
+        selectCase(event.target.value);
+        updateTargetUI();
+        resetPracticeSequenceForContext();
+        schedulePromptPreview();
+      });
+
+      homeButton.addEventListener("click", showHome);
+      refreshPromptPreviewButton.addEventListener("click", refreshPromptPreview);
+
+      caseUpload.addEventListener("change", async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        try {
+          const uploaded = JSON.parse(await file.text());
+          const title = String(uploaded.title || file.name.replace(/\.json$/i, "") || "Uploaded case");
+          customCase = {
+            id: "uploaded-case",
+            title,
+            short_title: uploaded.short_title || title,
+            patient: uploaded.patient || "Uploaded patient",
+            setting: uploaded.setting || "Uploaded case setting",
+            interaction: uploaded.interaction || "",
+            primary_role_label: uploaded.primary_role_label || "Clinician",
+            counterpart_role_label: uploaded.counterpart_role_label || "Patient",
+            primary_tune_label: uploaded.primary_tune_label || "Tune Clinician AI",
+            counterpart_tune_label: uploaded.counterpart_tune_label || "Tune Patient AI",
+            primary_prompt_label: uploaded.primary_prompt_label || "Clinician Prompt",
+            counterpart_prompt_label: uploaded.counterpart_prompt_label || "Patient Prompt",
+            case_summary: uploaded.case_summary || uploaded.summary || title,
+            chips: uploaded.chips || ["uploaded", "custom"],
+            facts: uploaded.facts || uploaded.hidden_facts || [],
+            memory_facts: uploaded.memory_facts || uploaded.patient_memory_facts || uploaded.facts || uploaded.hidden_facts || [],
+            rubric: uploaded.rubric || [],
+            custom: true,
+          };
+
+          if (!customCase.facts.length || !customCase.rubric.length) {
+            throw new Error("Uploaded case needs facts or hidden_facts plus rubric arrays.");
+          }
+
+          caseData = caseData.filter((item) => item.id !== customCase.id).concat(customCase);
+          selectCase(customCase.id);
+          updateTargetUI();
+          resetPracticeSequenceForContext();
+          schedulePromptPreview();
+        } catch (error) {
+          appendMessage("error", `Case upload failed: ${friendlyErrorMessage(error)}`);
+        } finally {
+          caseUpload.value = "";
+        }
+      });
+
+      restartButton.addEventListener("click", resetCase);
+
+      runButton.addEventListener("click", async () => {
+        if (window.location.protocol === "file:") {
+          appendMessage("error", "This static file cannot run the simulation. Open http://127.0.0.1:8765/ and run it from there.");
+          return;
+        }
+        if (!["initial", "improved-ready"].includes(practiceStage)) {
+          return;
+        }
+        if (currentController) {
+          intentionallyAbortedRuns.add(activeRunId);
+          currentController.abort();
+        }
+        const payload = buildRunPayload();
+        const comparisonRun = payload.evaluationMode === "comparison";
+        const runId = activeRunId + 1;
+        activeRunId = runId;
+        clearRun({ preservePromptUpdate: comparisonRun });
+        startTimer();
+        currentController = new AbortController();
+        setPromptEditingLocked(true);
+        updateRunButtonForStage();
+        appendMessage(
+          "evaluator",
+          comparisonRun
+            ? "Improved-prompt comparison started. Prompt A and its scores remain the reference."
+            : "Practice started. Running in the background."
+        );
+
+        try {
+          const response = await fetch("/api/run-job", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            signal: currentController.signal,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+          }
+
+          const started = await response.json();
+          if (started.error) {
+            throw new Error(started.error);
+          }
+          if (!started.jobId) {
+            throw new Error("Run job did not return an id.");
+          }
+
+          let result = null;
+          let polls = 0;
+          let renderedJobEventCount = 0;
+          while (true) {
+            await wait(2000);
+            polls += 1;
+            const statusResponse = await fetch(`/api/run-job?jobId=${encodeURIComponent(started.jobId)}`, {
+              method: "GET",
+              headers: { "Accept": "application/json" },
+              signal: currentController.signal,
+            });
+            if (!statusResponse.ok) {
+              throw new Error(`Server returned ${statusResponse.status}`);
+            }
+            const job = await statusResponse.json();
+            if (job.error) {
+              throw new Error(job.error);
+            }
+            const liveEvents = Array.isArray(job.events) ? job.events : [];
+            const newLiveEvents = liveEvents.slice(renderedJobEventCount);
+            newLiveEvents.forEach((event) => {
+              if (event.type === "typing") {
+                appendTyping(event.role);
+              } else if (event.type === "message") {
+                appendMessage(event.role, event.content, event.final);
+              }
+            });
+            renderedJobEventCount = liveEvents.length;
+            const progress = job.progress || {};
+            if (progress.turn && progress.maxTurns) {
+              document.querySelector("#turns").textContent = `${progress.turn} / ${progress.maxTurns}`;
+            }
+            if (progress.phase === "evaluator") {
+              document.querySelector("#info-uncovered").textContent = "scoring";
+              document.querySelector("#risk-flags").textContent = "checking";
+            }
+            if (polls % 5 === 0 && !newLiveEvents.length) {
+              const turnLabel = progress.turn && progress.maxTurns ? `, exchange ${progress.turn} / ${progress.maxTurns}` : "";
+              appendMessage("evaluator", `Still running: ${progress.phase || "working"}${turnLabel} (${polls * 2}s elapsed).`);
+            }
+            if (job.status === "done") {
+              result = job.result || {};
+              break;
+            }
+            if (job.status === "error") {
+              throw new Error(job.error || "Run failed.");
+            }
+          }
+
+          removeTyping();
+          if (!renderedJobEventCount) {
+            (result.transcript || []).forEach((item) => {
+              appendMessage(item.role, item.content, item.final);
+            });
+          }
+
+          const report = result.report || {};
+          if (result.prompt_preview) {
+            renderPromptPreview(result.prompt_preview);
+          }
+          latestReport = report;
+          setOverallPromptScore(report.score, report.comparison);
+          (report.metrics || []).slice(0, 4).forEach((metric, index) => setMetric(index, metric));
+          assignedContractGuidance.textContent = renderAssignedContract(report.behaviour_contract);
+          clinicalPerformanceGuidance.textContent = renderClinicalPerformance(report.clinical_evaluation);
+          promptFidelityGuidance.textContent =
+            report.prompt_guidance?.fidelity || "Prompt fidelity guidance was unavailable for this run.";
+          promptPortabilityGuidance.textContent =
+            report.prompt_guidance?.portability || "Prompt portability guidance was unavailable for this run.";
+          document.querySelector("#info-uncovered").textContent = "complete";
+          document.querySelector("#risk-flags").textContent = `${report.critical_omissions?.length || 0} omissions`;
+          appendMessage("evaluator", reportSummary(report));
+          setPromptEditingLocked(true);
+
+          if (comparisonRun) {
+            practiceStage = "complete";
+            promptUpdateStatus.textContent = comparisonFeedback(report);
+          } else {
+            baselineSnapshot = {
+              caseId: selectedCaseId,
+              targetRole: activeTargetRole,
+              prompt: payload.evaluationTargetPrompt,
+              report: baselineReportSnapshot(report),
+              transcript: Array.isArray(result.transcript) ? result.transcript : [],
+            };
+            practiceStage = "baseline-complete";
+            promptUpdateStatus.textContent = coachFeedback(report);
+          }
+          updateTargetedActionButtons();
+          updateRunButtonForStage();
+        } catch (error) {
+          removeTyping();
+          const expectedAbort = error.name === "AbortError" || intentionallyAbortedRuns.has(runId);
+          if (!expectedAbort) {
+            appendMessage("error", friendlyErrorMessage(error));
+          }
+          if (practiceStage === "initial") {
+            setPromptEditingLocked(false);
+          }
+        } finally {
+          intentionallyAbortedRuns.delete(runId);
+          if (runId === activeRunId) {
+            stopTimer();
+            currentController = null;
+            updateRunButtonForStage();
+          }
+        }
+      });
+
+      updatePromptButton.addEventListener("click", async () => {
+        await improvePrompt();
+      });
+
+      targetedActionButtons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          await improvePrompt(button.dataset.improvementFocus);
+        });
+      });
+
+      batchLevelInputs.forEach((input) => input.addEventListener("change", updateBatchButtonLabel));
+      batchRepetitions.addEventListener("input", updateBatchButtonLabel);
+      batchDownloadButton.addEventListener("click", downloadBatchResults);
+
+      batchClinicianButton.addEventListener("click", async () => {
+        if (batchController) {
+          batchStatus.textContent = "A batch is already running.";
+          return;
+        }
+
+        const levels = selectedBatchLevels();
+        const repetitions = batchRepetitionCount();
+        if (!levels.length) {
+          batchStatus.textContent = "Choose at least one starting prompt level.";
+          return;
+        }
+
+        activeTargetRole = "clinician";
+        updateTargetUI();
+        batchResults = [];
+        latestBatchPayload = {
+          levels,
+          repetitionsPerLevel: repetitions,
+          totalPairedTrials: levels.length * repetitions,
+        };
+        renderBatchResults(batchResults);
+        batchController = new AbortController();
+        batchClinicianButton.disabled = true;
+        batchCancelButton.disabled = false;
+        batchDownloadButton.disabled = true;
+        runButton.disabled = true;
+        updatePromptButton.disabled = true;
+        batchStatus.textContent = "Starting batch clinician optimisation.";
+
+        try {
+          const response = await fetch("/api/batch-clinician", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...currentCasePayload(),
+              runs: repetitions,
+              levels,
+              promptsByLevel: {
+                low: promptLevels.clinician.low.text,
+                medium: promptLevels.clinician.medium.text,
+                high: promptLevels.clinician.high.text,
+              },
+              clinicianModel: clinicianModel.value,
+              patientModel: patientModelSelect.value,
+            }),
+            signal: batchController.signal,
+          });
+
+          if (!response.ok || !response.body) {
+            throw new Error(`Server returned ${response.status}`);
+          }
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
+
+            for (const line of lines) {
+              if (!line.trim()) continue;
+              const event = JSON.parse(line);
+
+              if (event.type === "batch_status") {
+                const phaseLabel =
+                  event.phase === "pilot"
+                    ? `creating one validated ${batchLevelLabel(event.level)} candidate`
+                    : event.phase === "before"
+                    ? `running ${batchLevelLabel(event.level)} prompt`
+                    : event.phase === "improve"
+                      ? "improving prompt"
+                      : "retesting improved prompt";
+                batchStatus.textContent = `Trial ${event.index} / ${event.total}: ${phaseLabel}.`;
+              }
+
+              if (event.type === "batch_keepalive") {
+                const phaseLabel = event.phase === "pilot" ? "candidate pilot" : event.phase === "before" ? "before run" : "after run";
+                const turnLabel = event.turn ? `, exchange ${event.turn} / ${event.maxTurns || DEFAULT_MAX_TURNS}` : "";
+                batchStatus.textContent = `Trial ${event.index} / ${event.total}: ${batchLevelLabel(event.level)} ${phaseLabel}, ${event.simulationPhase || "working"}${turnLabel}.`;
+              }
+
+              if (event.type === "batch_item") {
+                batchResults.push(event.item);
+                renderBatchResults(batchResults);
+                batchStatus.textContent = `Trial ${event.item.index} complete: ${formatScore(event.item.beforeScore)} before, ${formatScore(event.item.afterScore)} after (${formatDelta(event.item.delta)}).`;
+              }
+
+              if (event.type === "batch_done") {
+                const completed = Array.isArray(event.results) ? event.results.length : batchResults.length;
+                latestBatchPayload = {
+                  ...(event.settings || {}),
+                  summaries: event.summaries || {},
+                  selectionStatus: event.selectionStatus || "",
+                  simulationTemperature: event.temperature,
+                  evaluatorTemperature: event.evaluatorTemperature,
+                };
+                const promotedSummary = Object.values(event.summaries || {}).find(
+                  (summary) => summary?.improvedPrompt === event.bestPrompt
+                );
+                if (event.bestPrompt) {
+                  targetPrompt.value = event.bestPrompt;
+                  targetPromptDrafts.clinician = event.bestPrompt;
+                  evaluationTargetDrafts.clinician = event.bestPrompt;
+                }
+                const ci = promotedSummary?.deltaCi95;
+                batchStatus.textContent = event.bestPrompt
+                  ? `Batch complete: ${completed} paired trials. Candidate mean delta ${formatDelta(promotedSummary.meanDelta)} (95% interval ${formatDelta(ci?.[0])} to ${formatDelta(ci?.[1])}); it cleared the evidence threshold and has been loaded.`
+                  : `Batch complete: ${completed} paired trials. No candidate was auto-loaded because none yet showed a reliably positive improvement without critical safety regression.`;
+              }
+
+              if (event.type === "error") {
+                throw new Error(event.message);
+              }
+            }
+          }
+        } catch (error) {
+          if (error.name === "AbortError") {
+            batchStatus.textContent = "Batch cancelled.";
+          } else {
+            batchStatus.textContent = friendlyErrorMessage(error);
+            appendMessage("error", friendlyErrorMessage(error));
+          }
+        } finally {
+          batchController = null;
+          batchCancelButton.disabled = true;
+          setPromptEditingLocked(practiceStage !== "initial");
+          updateTargetedActionButtons();
+          updateRunButtonForStage();
+        }
+      });
+
+      batchCancelButton.addEventListener("click", () => {
+        if (!batchController) return;
+        batchController.abort();
+      });
+
+      updateTargetUI();
+      updateRunButtonForStage();
+      updateBatchButtonLabel();
+      renderBatchResults(batchResults);
+      loadCases();
+    </script>
+  </body>
+</html>

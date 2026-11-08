@@ -1,0 +1,16 @@
+# Secrets — never commit local credentials
+.env
+.env.*
+!.env.example
+
+# Python caches and build artefacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Generated local output
+patient_prompt_category_batch_results_*.json
+patient_prompt_category_batch_results_*.csv
+patient_baseline_score_check.json
